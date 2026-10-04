@@ -1,0 +1,63 @@
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Main application: light theme */
+  --light-canvas: #fbfbfc;
+  --light-surface: #ffffff;
+  --light-surface-soft: #f7f7f9;
+  --light-surface-accent: #f1edfb;
+  --light-text: #20202a;
+  --light-text-secondary: #626171;
+  --light-text-muted: #737386;
+  --light-text-faint: #aaa9b4;
+  --light-border: #e8e7ec;
+  --light-primary: #7056d9;
+  --light-primary-strong: #6149c0;
+  --light-primary-soft: #efeafd;
+  --light-blue: #4f7bd9;
+  --light-mint: #42a985;
+  --light-danger: #ed6c62;
+
+  /* Semantic aliases used throughout the light application. */
+  --color-canvas: var(--light-canvas);
+  --color-surface: var(--light-surface);
+  --color-surface-soft: var(--light-surface-soft);
+  --color-text-primary: var(--light-text);
+  --color-text-secondary: var(--light-text-secondary);
+  --color-text-muted: var(--light-text-muted);
+  --color-border: var(--light-border);
+  --color-primary: var(--light-primary);
+  --color-primary-soft: var(--light-primary-soft);
+  --color-danger: var(--light-danger);
+  --color-success: var(--light-mint);
+  --color-info: var(--light-blue);
+}
+
+.course-reader-shell {
+  color-scheme: dark;
+
+  /* Course content: dark theme */
+  --course-canvas: #202729;
+  --course-sidebar: #11171a;
+  --course-surface: #182024;
+  --course-surface-raised: #20282c;
+  --course-surface-hover: #303b42;
+  --course-surface-selected: #30363b;
+  --course-text: #e6e8e9;
+  --course-text-strong: #f0f2f3;
+  --course-text-secondary: #d1d5d7;
+  --course-text-muted: #aeb6ba;
+  --course-text-faint: #7f8b91;
+  --course-border: #343d41;
+  --course-border-strong: #3b474b;
+  --course-accent: #74a5ff;
+  --course-accent-strong: #5b93ff;
+  --course-accent-soft: #263b5a;
+  --course-success: #83c8aa;
+  --course-success-surface: #1a3028;
+  --course-correct-surface: #182b25;
+  --course-success-border: #3c795f;
+  --course-danger-surface: #2d211f;
+  --course-danger-border: #794c45;
+}
