@@ -15,7 +15,7 @@ export default function ProfileView({ user, learning }) {
   return <div className="profile-page">
     <div className="profile-page-heading"><div><span className="eyebrow">YOUR LEARNING SPACE</span><h1>My profile</h1><p>Your account, your progress, and your next discovery.</p></div><Link href="/" prefetch={false} className="profile-action">Back to learning <ArrowRight size={16} /></Link></div>
     <section className="profile-identity" aria-labelledby="profile-name">
-      <div className="profile-initials" aria-hidden="true">{initials}</div>
+      <div className={`profile-initials ${user.avatarUrl ? "has-photo" : ""}`} aria-hidden="true">{user.avatarUrl ? <img src={user.avatarUrl} alt="" referrerPolicy="no-referrer"/> : initials}</div>
       <div className="profile-identity-copy"><span className="profile-tag"><User size={12} /> CyberQ learner</span><h2 id="profile-name">{user.name}</h2><p><Envelope size={15} />{user.email}</p></div>
       <div className="profile-member"><CalendarBlank size={17} /><div><small>MEMBER SINCE</small><b>{date(user.createdAt)}</b></div></div>
     </section>

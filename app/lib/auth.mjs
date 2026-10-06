@@ -16,8 +16,8 @@ export async function getSessionUser(token) {
   const db = await getDatabase();
   const session = await db.collection("sessions").findOne({ _id: digest(token), expiresAt: { $gt: new Date() } });
   if (!session) return null;
-  const user = await db.collection("users").findOne({ _id: session.userId }, { projection: { name: 1, email: 1, createdAt: 1 } });
-  return user ? { id: user._id.toString(), name: user.name, email: user.email, createdAt: user.createdAt?.toISOString() || null } : null;
+  const user = await db.collection("users").findOne({ _id: session.userId }, { projection: { name: 1, email: 1, avatarUrl: 1, createdAt: 1 } });
+  return user ? { id: user._id.toString(), name: user.name, email: user.email, avatarUrl: user.avatarUrl || null, createdAt: user.createdAt?.toISOString() || null } : null;
 }
 
 export async function deleteSession(token) {

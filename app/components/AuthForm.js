@@ -4,9 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Atom, ArrowRight, BookOpen, Check, Eye, EyeSlash, Key, LockKey, ShieldCheck, Sparkle, User, Envelope, CircleNotch, WarningCircle } from "@phosphor-icons/react";
-import ThemeToggle from "./ThemeToggle";
 
-export default function AuthForm({ mode }) {
+function GoogleMark() {
+  return <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.4-.18-2.05H12v3.87h5.38a4.6 4.6 0 0 1-2 3.02v2.51h3.24c1.9-1.75 2.98-4.33 2.98-7.35Z"/><path fill="#34A853" d="M12 22c2.7 0 4.97-.9 6.62-2.42l-3.24-2.51c-.9.6-2.05.96-3.38.96-2.6 0-4.81-1.76-5.6-4.13H3.06v2.59A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.4 13.9A6 6 0 0 1 6.08 12c0-.66.11-1.3.32-1.9V7.51H3.06A10 10 0 0 0 2 12c0 1.61.39 3.14 1.06 4.49L6.4 13.9Z"/><path fill="#EA4335" d="M12 5.97c1.47 0 2.79.51 3.83 1.5l2.87-2.88A9.64 9.64 0 0 0 12 2a10 10 0 0 0-8.94 5.51L6.4 10.1C7.19 7.73 9.4 5.97 12 5.97Z"/></svg>;
+}
+
+export default function AuthForm({ mode, oauthError = "" }) {
   const signup = mode === "signup";
   const router = useRouter();
   const formRef = useRef(null);
@@ -50,7 +53,7 @@ export default function AuthForm({ mode }) {
   return <main className="auth-page">
     <header className="auth-header">
       <Link className="logo" href="/login" aria-label="CyberQ Lab home"><span className="logo-mark"><Atom size={22} weight="duotone" /></span><span>CyberQ Lab</span></Link>
-      <div className="auth-header-actions"><span>Quantum ideas. Real understanding.</span><ThemeToggle /></div>
+      <div className="auth-header-actions"><span>Quantum ideas. Real understanding.</span></div>
     </header>
     <div className="auth-layout">
       <section className="auth-story" aria-label="About CyberQ Lab">
@@ -79,6 +82,9 @@ export default function AuthForm({ mode }) {
           <h2 id="auth-heading">{signup ? "Create your account" : "Welcome back"}</h2>
           <p className="auth-subtitle">{signup ? "A little curiosity goes a long way. Let’s get started." : "Sign in to explore your quantum learning workspace."}</p>
           <div className="auth-tabs" aria-label="Account options"><Link href="/login" className={!signup ? "active" : ""} aria-current={!signup ? "page" : undefined}>Log in</Link><Link href="/signup" className={signup ? "active" : ""} aria-current={signup ? "page" : undefined}>Sign up</Link></div>
+          {oauthError && <div className="auth-error auth-oauth-error" role="alert"><WarningCircle size={18}/><span>{oauthError}</span></div>}
+          <a className="auth-google" href="/api/auth/google"><GoogleMark/><span>{signup ? "Sign up with Google" : "Continue with Google"}</span></a>
+          <div className="auth-divider"><span>or continue with email</span></div>
           <form ref={formRef} onSubmit={submit} className="auth-form" aria-busy={pending}>
             {signup && <label className="auth-field"><span>Full name</span><div className="auth-input"><User size={18} aria-hidden="true" /><input name="name" autoComplete="name" placeholder="Your name" minLength={2} maxLength={80} required disabled={pending} {...fieldProps("name")} /></div></label>}
             <label className="auth-field"><span>Email address</span><div className="auth-input"><Envelope size={18} aria-hidden="true" /><input name="email" type="email" autoComplete="email" autoCapitalize="none" spellCheck={false} placeholder="you@example.com" maxLength={254} required disabled={pending} {...fieldProps("email")} /></div></label>

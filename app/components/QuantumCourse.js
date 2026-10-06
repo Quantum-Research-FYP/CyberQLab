@@ -5,30 +5,45 @@ import { ArrowLeft, Atom, BookOpen, Brain, CaretLeft, CaretRight, CheckCircle, C
 
 import { sections, videos } from "../lib/course-content.mjs";
 const sectionIcons = { Key, Function, Atom, Warning, LockKey, Circuitry, ShieldCheck, Brain, Lightning, Sparkle, Target, BookOpen };
+const PASS_MARK = 80;
+
+function quizResult(section, answers = {}) {
+  const total = section.quiz.length;
+  const answered = section.quiz.filter((item, index) => answers[index] !== undefined).length;
+  const score = section.quiz.reduce((sum, item, index) => sum + (answers[index] === item[2] ? 1 : 0), 0);
+  const percentage = total ? Math.round((score / total) * 100) : 0;
+  return { total, answered, score, percentage, done: answered === total, passed: answered === total && percentage >= PASS_MARK };
+}
 
 function QuizRunner({ section, sectionIndex, answers, answer, openItem }) {
   const [questionIndex, setQuestionIndex] = useState(0);
-  const savedChoice = answers[questionIndex];
+  const [showResult, setShowResult] = useState(false);
+  const [retrying, setRetrying] = useState(false);
+  const [retryAnswers, setRetryAnswers] = useState({});
+  const activeAnswers = retrying ? retryAnswers : answers;
+  const savedChoice = activeAnswers[questionIndex];
   const [selection, setSelection] = useState(savedChoice ?? null);
   const [revealed, setRevealed] = useState(savedChoice !== undefined);
   const [question, choices, right, explanation] = section.quiz[questionIndex];
-  const done = Object.keys(answers).length === section.quiz.length;
-  const score = section.quiz.reduce((total, item, index) => total + (answers[index] === item[2] ? 1 : 0), 0);
+  const { done, passed, score, total, percentage } = quizResult(section, activeAnswers);
   const correct = selection === right;
 
   useEffect(() => {
     setQuestionIndex(0);
+    setShowResult(false);
+    setRetrying(false);
+    setRetryAnswers({});
   }, [sectionIndex]);
 
   useEffect(() => {
-    const chosen = answers[questionIndex];
+    const chosen = activeAnswers[questionIndex];
     setSelection(chosen ?? null);
     setRevealed(chosen !== undefined);
-  }, [answers, questionIndex]);
+  }, [activeAnswers, questionIndex]);
 
   const selectQuestion = nextIndex => {
     setQuestionIndex(nextIndex);
-    const chosen = answers[nextIndex];
+    const chosen = activeAnswers[nextIndex];
     setSelection(chosen ?? null);
     setRevealed(chosen !== undefined);
   };
@@ -36,16 +51,43 @@ function QuizRunner({ section, sectionIndex, answers, answer, openItem }) {
   const checkAnswer = () => {
     if (selection === null) return;
     answer(sectionIndex, questionIndex, selection);
+    if (retrying) setRetryAnswers(previous => ({ ...previous, [questionIndex]: selection }));
     setRevealed(true);
   };
+
+  const retryQuiz = () => {
+    setRetrying(true);
+    setRetryAnswers({});
+    setShowResult(false);
+    setQuestionIndex(0);
+    setSelection(null);
+    setRevealed(false);
+  };
+
+  if (showResult) {
+    return <section className={`quiz-result-screen ${passed ? "passed" : "not-passed"}`}>
+      <div className="quiz-result-medal"><Medal size={38} weight="duotone"/></div>
+      <span className="quiz-result-eyebrow">SECTION {sectionIndex + 1} RESULT</span>
+      <h2>{passed ? "Quiz passed" : "Keep learning—you’re close"}</h2>
+      <p>{passed ? "You scored 80% or higher and unlocked the next section." : "Retry the quiz and score at least 80% to unlock the next section."}</p>
+      <div className="quiz-score-ring" style={{ "--quiz-score": `${percentage * 3.6}deg` }} aria-label={`${percentage} percent`}>
+        <div><strong>{percentage}%</strong><span>{score} / {total} marks</span></div>
+      </div>
+      <div className="quiz-result-summary"><span><b>{score}</b>Correct</span><span><b>{total - score}</b>Incorrect</span><span><b>≥80%</b>Pass mark</span></div>
+      <div className="quiz-result-actions">
+        <button className="quiz-review-button" type="button" onClick={retryQuiz}><CaretLeft size={17}/> Retry quiz</button>
+        {passed && sectionIndex < sections.length - 1 && <button className="quiz-continue-button" type="button" onClick={() => openItem(sectionIndex + 1, "lesson")}>Continue to section {sectionIndex + 2} <CaretRight size={17}/></button>}
+      </div>
+    </section>;
+  }
 
   return <section className="section-mcq resource-quiz quiz-runner">
     <div className="quiz-runner-topline">
       <span>SECTION {sectionIndex + 1} QUIZ</span>
-      <strong>{done ? `${score}/${section.quiz.length} marks` : `${questionIndex + 1} of ${section.quiz.length}`}</strong>
+      <strong>{questionIndex + 1} of {total}</strong>
     </div>
     <div className="quiz-runner-progress" role="progressbar" aria-label="Quiz progress" aria-valuenow={questionIndex + 1} aria-valuemin={1} aria-valuemax={section.quiz.length}>
-      {section.quiz.map((item, index) => <i className={`${index === questionIndex ? "current" : ""} ${answers[index] !== undefined ? "answered" : ""}`} key={item[0]}/>) }
+      {section.quiz.map((item, index) => <i className={`${index === questionIndex ? "current" : ""} ${activeAnswers[index] !== undefined ? "answered" : ""}`} key={item[0]}/>) }
     </div>
     <article className={`quiz-question-card ${revealed ? (correct ? "correct" : "incorrect") : ""}`}>
       <h2>{question}</h2>
@@ -54,7 +96,7 @@ function QuizRunner({ section, sectionIndex, answers, answer, openItem }) {
           const selected = selection === choiceIndex;
           const isAnswer = revealed && choiceIndex === right;
           const isWrong = revealed && selected && !correct;
-          return <button type="button" role="radio" aria-checked={selected} className={`${selected ? "selected" : ""} ${isAnswer ? "answer" : ""} ${isWrong ? "wrong" : ""}`} onClick={() => { setSelection(choiceIndex); setRevealed(false); }} key={choice}>
+          return <button type="button" role="radio" aria-checked={selected} disabled={revealed} className={`${selected ? "selected" : ""} ${isAnswer ? "answer" : ""} ${isWrong ? "wrong" : ""}`} onClick={() => setSelection(choiceIndex)} key={choice}>
             <span className="quiz-radio" aria-hidden="true"><i/></span>
             <b>{choice}</b>
             {isAnswer && <CheckCircle size={20} weight="fill"/>}
@@ -68,17 +110,21 @@ function QuizRunner({ section, sectionIndex, answers, answer, openItem }) {
         <button className="quiz-check" type="button" disabled={selection === null || revealed} onClick={checkAnswer}><CheckCircle size={19} weight="fill"/> {revealed ? "Checked" : "Check"}</button>
         {questionIndex < section.quiz.length - 1
           ? <button className="quiz-next" type="button" disabled={!revealed} onClick={() => selectQuestion(questionIndex + 1)} aria-label="Next question"><CaretRight size={24} weight="bold"/></button>
-          : <button className="quiz-next" type="button" disabled={!done} onClick={() => sectionIndex < 11 && openItem(sectionIndex + 1, "lesson")} aria-label={sectionIndex < 11 ? "Next section" : "Quiz complete"}><CaretRight size={24} weight="bold"/></button>}
+          : <button className="quiz-next" type="button" disabled={!done} onClick={() => setShowResult(true)} aria-label="View quiz results"><CaretRight size={24} weight="bold"/></button>}
       </div>
     </article>
-    {done && <div className="section-complete"><Medal size={28} weight="duotone"/><div><b>Section complete · {score}/{section.quiz.length}</b><span>{score === section.quiz.length ? "Excellent—every answer is correct." : "You can revisit any question and improve your answers."}</span></div>{sectionIndex < 11 && <button onClick={() => openItem(sectionIndex + 1, "lesson")}>Next section <CaretRight size={15}/></button>}</div>}
   </section>;
 }
 
 export default function QuantumCourse({answers,onAnswer,onOpenAlgorithm,activeItem,setActiveItem}){
   const [courseQuery,setCourseQuery]=useState("");
   const answer=onAnswer;
-  const openItem=(sectionIndex,type)=>{setActiveItem({sectionIndex,type});window.scrollTo({top:0,behavior:"smooth"})};
+  const isUnlocked = sectionIndex => sectionIndex === 0 || quizResult(sections[sectionIndex - 1], answers[sectionIndex - 1] || {}).passed;
+  const openItem=(sectionIndex,type)=>{if(!isUnlocked(sectionIndex)) return;setActiveItem({sectionIndex,type});window.scrollTo({top:0,behavior:"smooth"})};
+
+  useEffect(() => {
+    if (activeItem && !isUnlocked(activeItem.sectionIndex)) setActiveItem({ sectionIndex: 0, type: "lesson" });
+  }, [activeItem, answers, setActiveItem]);
 
   if(!activeItem){
     return <div className="course-shell course-library">
@@ -96,7 +142,7 @@ export default function QuantumCourse({answers,onAnswer,onOpenAlgorithm,activeIt
         <button className="reader-back" onClick={()=>setActiveItem(null)}><ArrowLeft size={19}/> <span>All courses</span></button>
         <div className="reader-course-name"><small>CYBERQ LAB COURSE</small><h2>Quantum Cryptography</h2><p>Basic to intermediate</p></div>
         <div className="reader-nav-divider"/><b className="reader-nav-label">Lessons</b>
-        <nav>{sections.map((navSection,navIndex)=>{const current=navIndex===sectionIndex;return <div className={`reader-nav-section ${current?"current":""}`} key={navSection.title}><button onClick={()=>openItem(navIndex,"lesson")}><span>{String(navIndex+1).padStart(2,"0")}</span>{navSection.title}<CaretRight size={14}/></button>{current&&<div className="reader-subnav"><button className={type==="lesson"?"active":""} onClick={()=>openItem(navIndex,"lesson")}>Lesson and video</button>{navSection.algorithms&&<button className={type==="practice"?"active":""} onClick={()=>openItem(navIndex,"practice")}>Algorithm practice</button>}<button className={type==="quiz"?"active":""} onClick={()=>openItem(navIndex,"quiz")}>Section quiz</button></div>}</div>})}</nav>
+        <nav>{sections.map((navSection,navIndex)=>{const current=navIndex===sectionIndex, unlocked=isUnlocked(navIndex), result=quizResult(navSection,answers[navIndex]||{});return <div className={`reader-nav-section ${current?"current":""} ${unlocked?"":"locked"}`} key={navSection.title}><button disabled={!unlocked} onClick={()=>openItem(navIndex,"lesson")} aria-label={unlocked?navSection.title:`${navSection.title} locked`}><span>{String(navIndex+1).padStart(2,"0")}</span><span className="reader-nav-title">{navSection.title}{result.done&&<small className={result.passed?"passed":"failed"}>{result.score}/{result.total} · {result.percentage}%</small>}</span>{unlocked?<CaretRight size={14}/>:<LockKey size={14}/>}</button>{current&&<div className="reader-subnav"><button className={type==="lesson"?"active":""} onClick={()=>openItem(navIndex,"lesson")}>Lesson and video</button>{navSection.algorithms&&<button className={type==="practice"?"active":""} onClick={()=>openItem(navIndex,"practice")}>Algorithm practice</button>}<button className={type==="quiz"?"active":""} onClick={()=>openItem(navIndex,"quiz")}>Section quiz</button></div>}</div>})}</nav>
       </aside>
       <main className="course-resource-page">
       <div className="resource-topbar"><span>{section.level}</span><span>Section {sectionIndex+1} of 12</span></div>

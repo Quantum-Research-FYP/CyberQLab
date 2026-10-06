@@ -44,6 +44,7 @@ export async function getDatabase() {
   if (!cache.indexes) {
     cache.indexes = Promise.all([
       db.collection("users").createIndex({ email: 1 }, { unique: true }),
+      db.collection("users").createIndex({ googleSubject: 1 }, { unique: true, sparse: true }),
       db.collection("sessions").createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }),
       db.collection("auth_attempts").createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }),
     ]).catch((error) => { cache.indexes = null; throw error; });

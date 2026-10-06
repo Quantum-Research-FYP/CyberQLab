@@ -38,6 +38,7 @@
 .auth-tabs { display: flex; padding: 4px; border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-surface-soft); margin-bottom: 25px; }
 .auth-tabs a { display: grid; place-items: center; flex: 1; min-height: 40px; border: 1px solid transparent; border-radius: 7px; text-decoration: none; font-size: 11px; font-weight: 700; color: var(--color-text-muted); }
 .auth-tabs a.active { color: var(--color-purple-text); border-color: var(--color-border); background: var(--color-surface); box-shadow: 0 2px 5px var(--color-shadow); }
+.auth-google{display:flex;align-items:center;justify-content:center;gap:10px;min-height:46px;border:1px solid var(--color-border-strong);border-radius:9px;background:var(--color-surface);color:var(--color-text-primary);font-size:12px;font-weight:700;text-decoration:none;box-shadow:0 2px 7px var(--color-shadow)}.auth-google:hover{background:var(--color-surface-soft);border-color:var(--color-text-muted)}.auth-google svg{width:19px;height:19px;flex:0 0 auto}.auth-divider{display:flex;align-items:center;gap:12px;margin:17px 0;color:var(--color-text-muted);font-size:9px;text-transform:uppercase;letter-spacing:.55px}.auth-divider:before,.auth-divider:after{content:"";height:1px;flex:1;background:var(--color-border)}.auth-oauth-error{margin-bottom:14px}
 .auth-form { display: grid; gap: 17px; }
 .auth-field { display: grid; gap: 7px; }
 .auth-field > span { font-size: 11px; color: var(--color-text-primary); font-weight: 700; }

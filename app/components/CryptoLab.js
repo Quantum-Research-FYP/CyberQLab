@@ -13,8 +13,10 @@ import PostQuantumPlayground from "./PostQuantumPlayground";
 import QuantumCourse from "./QuantumCourse";
 import ProfileDropdown from "./ProfileDropdown";
 import { createRSA } from "./rsa.mjs";
+import { sections } from "../lib/course-content.mjs";
 import {
   Atom,
+  ArrowRight,
   BookOpen,
   CaretDown,
   CaretDoubleLeft,
@@ -28,6 +30,7 @@ import {
   Database,
   Function,
   Hash,
+  House,
   Key,
   Lightning,
   LockKey,
@@ -39,6 +42,7 @@ import {
   ShieldCheck,
   Sparkle,
   SquaresFour,
+  Target,
   TrendUp,
   User,
   Warning,
@@ -183,7 +187,7 @@ function Sidebar({ active, setActive, open, close, workspace, setWorkspace, cour
     <div className="sidebar-head"><Logo /><button className="sidebar-toggle icon-btn" onClick={toggleCollapsed} aria-label={collapsed ? "Expand navigation" : "Collapse navigation"} title={collapsed ? "Expand navigation" : "Collapse navigation"} aria-expanded={!collapsed} aria-controls="sidebar-links">{collapsed ? <CaretDoubleRight size={15} weight="bold"/> : <CaretDoubleLeft size={15} weight="bold"/>}</button><button className="icon-btn mobile-close" onClick={close} aria-label="Close navigation"><X size={18}/></button></div>
     <nav id="sidebar-links" aria-label="Workspace and algorithms">
       <p className="nav-label">Workspace</p>
-      <button aria-label="Learning lab" title="Learning lab" className={`nav-item ${workspace === "lab" ? "active" : ""}`} onClick={() => {setWorkspace("lab");close();}}><SquaresFour size={18} weight={workspace === "lab" ? "fill" : "regular"}/><span className="sidebar-link-label">Learning lab</span></button>
+      <button aria-label="Home" title="Home" className={`nav-item ${workspace === "home" ? "active" : ""}`} onClick={() => {setWorkspace("home");close();}}><House size={18} weight={workspace === "home" ? "fill" : "regular"}/><span className="sidebar-link-label">Home</span></button>
       <button aria-label="Foundations" title="Foundations" className={`nav-item ${workspace === "course" ? "active" : ""}`} onClick={() => {setWorkspace("course");close();}}><BookOpen size={18}/><span className="sidebar-link-label">Foundations</span></button>
       <Link aria-label="My profile" title="My profile" className={`nav-item ${workspace === "profile" ? "active" : ""}`} href="/profile" prefetch={false} onClick={openProfile}><User size={18}/><span className="sidebar-link-label">My profile</span></Link>
       <p className="nav-label algorithm-label">Algorithms</p>
@@ -317,6 +321,32 @@ function ThreatMap() {
   </section>;
 }
 
+function HomeWorkspace({ user, courseAnswers, openLab, openCourse }) {
+  const passed = Object.entries(courseAnswers).filter(([sectionIndex, selected]) => {
+    const section = sections[Number(sectionIndex)];
+    if (!section) return false;
+    const correct = section.quiz.filter((question, index) => selected?.[index] === question[2]).length;
+    return Object.keys(selected || {}).length === section.quiz.length && correct / section.quiz.length >= .8;
+  }).length;
+  const progress = Math.round((passed / sections.length) * 100);
+  const firstName = user.name?.trim().split(/\s+/)[0] || "Learner";
+
+  return <div className="home-workspace">
+    <section className="home-hero">
+      <div className="home-hero-copy"><span className="home-kicker"><Sparkle size={14} weight="fill"/> QUANTUM SECURITY, MADE PRACTICAL</span><h1>Welcome back, {firstName}.<br/><em>Build what comes next.</em></h1><p>Learn how today’s cryptography works, see where quantum computing changes the rules, and practice designing safer systems.</p><div className="home-hero-actions"><button onClick={openCourse}>Continue learning <ArrowRight size={17}/></button><button onClick={() => openLab("RSA")}>Open learning lab</button></div></div>
+      <div className="home-visual" aria-hidden="true"><div className="home-orbit orbit-a"/><div className="home-orbit orbit-b"/><div className="home-core"><Atom size={42} weight="duotone"/></div><span className="home-node node-one"><Key size={18}/></span><span className="home-node node-two"><ShieldCheck size={18}/></span><span className="home-node node-three"><Function size={18}/></span></div>
+    </section>
+    <section className="home-section-heading"><div><span>YOUR LEARNING PATH</span><h2>Start with foundations. Finish quantum-ready.</h2></div><button onClick={openCourse}>View course <CaretRight size={16}/></button></section>
+    <div className="home-path-grid">
+      <article><span className="home-card-number">01</span><div className="home-card-icon violet"><BookOpen size={22}/></div><h3>Learn the foundations</h3><p>Build a clear understanding of cryptography, QKD, and quantum information.</p><button onClick={openCourse}>Explore lessons <ArrowRight size={15}/></button></article>
+      <article><span className="home-card-number">02</span><div className="home-card-icon blue"><SquaresFour size={22}/></div><h3>Experiment in the lab</h3><p>Step through RSA, elliptic curves, quantum attacks, and migration paths.</p><button onClick={() => openLab("RSA")}>Launch lab <ArrowRight size={15}/></button></article>
+      <article><span className="home-card-number">03</span><div className="home-card-icon green"><ShieldCheck size={22}/></div><h3>Become quantum-ready</h3><p>Connect attack models to practical post-quantum security decisions.</p><button onClick={() => openLab("RSA")}>See quantum impact <ArrowRight size={15}/></button></article>
+    </div>
+    <section className="home-progress-card"><div className="home-progress-icon"><Target size={25}/></div><div><span>COURSE PROGRESS</span><h2>Quantum Cryptography</h2><p>{passed} of {sections.length} sections passed</p></div><div className="home-progress-meter"><strong>{progress}%</strong><span><i style={{width:`${progress}%`}}/></span></div><button onClick={openCourse}>{passed ? "Continue" : "Start course"}<CaretRight size={16}/></button></section>
+    <section className="home-lab-banner"><div><span>INTERACTIVE LEARNING LAB</span><h2>See the math. Break the assumption. Rebuild the security.</h2><p>Explore each algorithm through guided, animated whiteboards.</p></div><button onClick={() => openLab("RSA")}>Explore algorithms <ArrowRight size={17}/></button></section>
+  </div>;
+}
+
 export default function CryptoLab({ user, initialLearning, initialWorkspace, initialAlgorithm }) {
   const router = useRouter();
   const lastActivity = initialLearning.currentActivity;
@@ -335,7 +365,7 @@ export default function CryptoLab({ user, initialLearning, initialWorkspace, ini
     try { window.localStorage.setItem("cyberq-nav-collapsed", String(next)); } catch {}
   };
   const [workflowFocus, setWorkflowFocus] = useState(false);
-  const [workspace, setWorkspaceState] = useState(initialWorkspace || lastActivity?.workspace || "lab");
+  const [workspace, setWorkspaceState] = useState(initialWorkspace || "home");
   const [courseItem, setCourseItem] = useState(lastActivity?.workspace === "course" && lastActivity.sectionIndex !== null ? { sectionIndex: lastActivity.sectionIndex, type: lastActivity.resource } : null);
   const setWorkspace = (next) => {
     if (initialWorkspace === "profile" && next !== "profile") { router.push(`/?workspace=${next}`); return; }
@@ -355,7 +385,7 @@ export default function CryptoLab({ user, initialLearning, initialWorkspace, ini
   const stage = useMemo(() => current === data.steps.length - 1 ? "Ready to inspect the attack" : "Explore each step", [current, data]);
 
   useEffect(() => {
-    if (workspace === "profile") return;
+    if (workspace === "profile" || workspace === "home") return;
     const activity = workspace === "lab" ? { workspace: "lab", algorithm: active, stage: tab } : { workspace: "course", sectionIndex: courseItem?.sectionIndex ?? null, ...(courseItem ? { resource: courseItem.type } : {}) };
     trackActivity(activity);
   }, [workspace, active, tab, courseItem, trackActivity]);
@@ -378,10 +408,10 @@ export default function CryptoLab({ user, initialLearning, initialWorkspace, ini
     <Sidebar active={active} setActive={selectAlgorithm} open={menuOpen} close={() => setMenuOpen(false)} workspace={workspace} setWorkspace={setWorkspace} courseAnswers={courseAnswers} openProfile={openProfile} collapsed={navCollapsed} toggleCollapsed={toggleNavigation}/>
     {menuOpen && <button className="scrim" onClick={() => setMenuOpen(false)} aria-label="Close menu"/>}
     <main className="main">
-      <header className="topbar"><button className="mobile-menu icon-btn" aria-label="Open navigation" aria-controls="main-navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><SquaresFour size={20}/></button><div className="crumbs"><span>{workspace === "profile" ? "Account" : workspace === "course" ? "Foundations" : "Learning lab"}</span><CaretRight size={13}/><b>{workspace === "profile" ? "My profile" : workspace === "course" ? "Course library" : active}</b></div><div className="header-actions"><ProfileDropdown user={user} onOpenProfile={openProfile}/></div></header>
+      <header className="topbar"><button className="mobile-menu icon-btn" aria-label="Open navigation" aria-controls="main-navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><SquaresFour size={20}/></button><div className="crumbs"><span>{workspace === "home" ? "CyberQ Lab" : workspace === "profile" ? "Account" : workspace === "course" ? "Foundations" : "Learning lab"}</span>{workspace !== "home" && <><CaretRight size={13}/><b>{workspace === "profile" ? "My profile" : workspace === "course" ? "Course library" : active}</b></>}</div><div className="header-actions"><ProfileDropdown user={user} onOpenProfile={openProfile}/></div></header>
       <div className="content">
         {saveError && <div className="learning-save-error" role="alert"><span>{saveError}</span><button onClick={() => flush().catch(() => {})} disabled={saving}>{saving ? "Saving…" : "Retry save"}</button></div>}
-        {workspace === "profile" ? <ProfileView user={user} learning={initialLearning}/> : workspace === "course" ? <QuantumCourse answers={courseAnswers} onAnswer={answerQuestion} onOpenAlgorithm={selectAlgorithm} activeItem={courseItem} setActiveItem={setCourseItem}/> : <>
+        {workspace === "home" ? <HomeWorkspace user={user} courseAnswers={courseAnswers} openLab={selectAlgorithm} openCourse={() => setWorkspace("course")}/> : workspace === "profile" ? <ProfileView user={user} learning={initialLearning}/> : workspace === "course" ? <QuantumCourse answers={courseAnswers} onAnswer={answerQuestion} onOpenAlgorithm={selectAlgorithm} activeItem={courseItem} setActiveItem={setCourseItem}/> : <>
         <section className="intro">
           <div><div className="family-tag"><i className={data.color}/>{data.family}</div><h1>{active}</h1><p>{data.category}</p></div>
           <div className="threat-chip"><span><Warning size={18} weight="fill"/></span><div><small>QUANTUM STATUS</small><b>Vulnerable to Shor</b></div></div>

@@ -9,5 +9,5 @@ export default async function Home({ searchParams }) {
   if (unavailable) return <DatabaseUnavailable />;
   if (!user) redirect("/login");
   const { workspace, algorithm } = await searchParams;
-  return <CryptoLab user={user} initialLearning={learning} initialAlgorithm={labAlgorithms.includes(algorithm) ? algorithm : undefined} initialWorkspace={["lab", "course"].includes(workspace) ? workspace : undefined} />;
+  return <CryptoLab user={user} initialLearning={learning} initialAlgorithm={labAlgorithms.includes(algorithm) ? algorithm : undefined} initialWorkspace={["home", "lab", "course"].includes(workspace) ? workspace : undefined} />;
 }

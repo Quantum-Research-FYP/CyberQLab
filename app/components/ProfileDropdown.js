@@ -36,7 +36,7 @@ export default function ProfileDropdown({ user, onOpenProfile }) {
     if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
   }}>
     <button className="profile-dropdown-trigger" type="button" ref={trigger} aria-label="Profile options" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(value => !value)}>
-      <span className="profile-dropdown-avatar" aria-hidden="true">{initials}</span>
+      <span className="profile-dropdown-avatar" aria-hidden="true">{user?.avatarUrl ? <img src={user.avatarUrl} alt="" referrerPolicy="no-referrer"/> : initials}</span>
       <span className="profile-dropdown-name">{name}</span>
       <CaretDown size={14} weight="bold" aria-hidden="true"/>
     </button>

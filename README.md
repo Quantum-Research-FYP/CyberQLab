@@ -13,6 +13,24 @@ npm run dev
 
 If `.env.local` already exists, keep it rather than overwriting it. Open `http://localhost:3000`. Signed-out visitors are redirected to `/login`; new learners can create an account at `/signup`.
 
+### Google sign-in
+
+Create an OAuth 2.0 **Web application** client in Google Cloud, then add this authorized redirect URI for local development:
+
+```text
+http://localhost:3000/api/auth/google/callback
+```
+
+For production, add the same path on the public HTTPS origin. Configure the matching origin and credentials in `.env.local`:
+
+```bash
+APP_URL=http://localhost:3000
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
+```
+
+The integration requests only `openid`, `email`, and `profile`. Google access and refresh tokens are not stored. Restart the development server after changing environment variables.
+
 ## MongoDB and accounts
 
 `MONGODB_URI` is server-only. `MONGODB_DB` defaults to `cyberq_lab`. Local environment files are ignored by Git; never use a `NEXT_PUBLIC_` variable for database credentials. The supplied Atlas connection is configured in the local environment file.
