@@ -1,40 +1,115 @@
+/* Shared semantic palette. Components consume these variables in globals.css. */
 :root,
 [data-theme="light"] {
   color-scheme: light;
-
-  /* Main application: light theme */
-  --light-canvas: #fbfbfc;
-  --light-surface: #ffffff;
-  --light-surface-soft: #f7f7f9;
-  --light-surface-accent: #f1edfb;
-  --light-text: #20202a;
-  --light-text-secondary: #626171;
-  --light-text-muted: #737386;
-  --light-text-faint: #aaa9b4;
-  --light-border: #e8e7ec;
-  --light-primary: #7056d9;
-  --light-primary-strong: #6149c0;
-  --light-primary-soft: #efeafd;
-  --light-blue: #4f7bd9;
-  --light-mint: #42a985;
-  --light-danger: #ed6c62;
-
-  /* Semantic aliases used throughout the light application. */
-  --color-canvas: var(--light-canvas);
-  --color-surface: var(--light-surface);
-  --color-surface-soft: var(--light-surface-soft);
-  --color-text-primary: var(--light-text);
-  --color-text-secondary: var(--light-text-secondary);
-  --color-text-muted: var(--light-text-muted);
-  --color-border: var(--light-border);
-  --color-primary: var(--light-primary);
-  --color-primary-soft: var(--light-primary-soft);
-  --color-danger: var(--light-danger);
-  --color-success: var(--light-mint);
-  --color-info: var(--light-blue);
+  --color-canvas: #fbfbfc;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f7f7f9;
+  --color-text-primary: #20202a;
+  --color-text-secondary: #626171;
+  --color-text-muted: #737386;
+  --color-border: #e8e7ec;
+  --color-border-strong: #cfcbdc;
+  --color-brand-start: #806ae2;
+  --color-brand-end: #5640bd;
+  --color-cover-glow: #a795ee;
+  --color-cover-start: #3d2a86;
+  --color-cover-middle: #755bd0;
+  --color-cover-end: #3d8d9d;
+  --color-on-accent: #ffffff;
+  --color-primary: #7056d9;
+  --color-primary-soft: #efeafd;
+  --color-danger: #b64d46;
+  --color-success: #287b60;
+  --color-info: #466db3;
+  --color-focus: rgba(112,86,217,.35);
+  --color-scrim: rgba(25,22,35,.55);
+  --color-shadow: rgba(32,28,48,.09);
+  --color-overlay: rgba(255,255,255,.15);
+  --color-purple-text: #6149c0;
+  --color-purple-soft: #efeafd;
+  --color-purple-border: #d9cfee;
+  --color-purple-fill: #6f56cc;
+  --color-blue-text: #466db3;
+  --color-blue-soft: #edf3fd;
+  --color-blue-border: #cfdeef;
+  --color-blue-fill: #4f72bb;
+  --color-green-text: #287b60;
+  --color-green-soft: #edf8f3;
+  --color-green-border: #cce5d9;
+  --color-green-fill: #328568;
+  --color-red-text: #b64d46;
+  --color-red-soft: #fff2f0;
+  --color-red-border: #f0d0cc;
+  --color-red-fill: #ba514a;
+  --color-gold-text: #916f2e;
+  --color-gold-soft: #fff8e9;
+  --color-gold-border: #eaddbb;
+  --color-gold-fill: #967331;
 }
 
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-canvas: #12141c;
+  --color-surface: #1b1e29;
+  --color-surface-soft: #232735;
+  --color-text-primary: #eeeef5;
+  --color-text-secondary: #c3c2d2;
+  --color-text-muted: #aaa9bd;
+  --color-border: #343849;
+  --color-border-strong: #55596f;
+  --color-primary: #b6a2ff;
+  --color-primary-soft: #302946;
+  --color-danger: #ffaaa2;
+  --color-success: #83d8b8;
+  --color-info: #9cbdff;
+  --color-focus: rgba(182,162,255,.55);
+  --color-scrim: rgba(0,0,0,.65);
+  --color-shadow: rgba(0,0,0,.25);
+  --color-purple-text: #c1afff;
+  --color-purple-soft: #302946;
+  --color-purple-border: #584875;
+  --color-blue-text: #9cbdff;
+  --color-blue-soft: #253348;
+  --color-blue-border: #415978;
+  --color-green-text: #83d8b8;
+  --color-green-soft: #20382f;
+  --color-green-border: #3e6656;
+  --color-red-text: #ffaaa2;
+  --color-red-soft: #402a2e;
+  --color-red-border: #76484c;
+  --color-gold-text: #e9c77f;
+  --color-gold-soft: #383225;
+  --color-gold-border: #6d5c3a;
+}
+
+/* The reader follows the same selection as the rest of the app. */
 .course-reader-shell {
+  --course-canvas: var(--color-canvas);
+  --course-sidebar: var(--color-surface);
+  --course-surface: var(--color-surface);
+  --course-surface-raised: var(--color-surface-soft);
+  --course-surface-hover: var(--color-primary-soft);
+  --course-surface-selected: var(--color-primary-soft);
+  --course-text: var(--color-text-primary);
+  --course-text-strong: var(--color-text-primary);
+  --course-text-secondary: var(--color-text-secondary);
+  --course-text-muted: var(--color-text-muted);
+  --course-text-faint: var(--color-text-muted);
+  --course-border: var(--color-border);
+  --course-border-strong: var(--color-border-strong);
+  --course-accent: var(--color-info);
+  --course-accent-strong: var(--color-blue-fill);
+  --course-accent-soft: var(--color-blue-soft);
+  --course-success: var(--color-success);
+  --course-success-surface: var(--color-green-soft);
+  --course-correct-surface: var(--color-green-soft);
+  --course-success-border: var(--color-green-border);
+  --course-danger-surface: var(--color-red-soft);
+  --course-danger-border: var(--color-red-border);
+}
+
+[data-theme="dark"] .course-reader-shell {
   color-scheme: dark;
 
   /* Course content: dark theme */

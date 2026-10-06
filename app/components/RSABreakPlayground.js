@@ -54,13 +54,13 @@ export default function RSABreakPlayground({ n, e, firstPrime, onEdit }) {
   function reset() { setStep(0); setPlaying(false); }
   function move(next) { setPlaying(false); setStep(next); }
 
-  return <section className="foundation-card rsa-break-section">
-    <div className="card-top"><div><span className="eyebrow coral">FOLLOW THE ATTACK</span><h2>RSA break playground</h2><p className="rsa-break-subtitle">From a public key to a recovered secret, one line at a time.</p></div><button className="rsa-example" onClick={onEdit}>Edit primes</button></div>
+  return <>
     <div className="rsa-playground rsa-break">
       <div className="rsa-inputs">
         <div className="rsa-input-intro"><b>Prepare a toy ciphertext</b><span>Encrypt a number with your public key.</span></div>
         <label className="rsa-color-m">Message m<input type="number" min="0" max={n ? n - 1 : 0} step="1" value={message} onChange={event => { reset(); setMessage(event.target.value); }} aria-invalid={!!error} aria-describedby={error ? "rsa-break-error" : undefined}/></label>
         <div className="rsa-cipher-preview"><small>c = mᵉ mod n</small><strong><RSAValue kind="c">{cipher ?? "—"}</RSAValue></strong></div>
+        <button className="rsa-example" onClick={onEdit}>Edit primes</button>
       </div>
       {error && <p className="rsa-error" id="rsa-break-error" role="alert">{error}</p>}
       <RSALegend attack/>
@@ -83,5 +83,5 @@ export default function RSABreakPlayground({ n, e, firstPrime, onEdit }) {
       <div className="rsa-controls"><div className="rsa-playback"><button className="rsa-play" disabled={!!error} onClick={() => { if (step === 7) setStep(0); setPlaying(value => !value); }}>{playing ? <Pause size={15} weight="fill"/> : <Play size={15} weight="fill"/>}{playing ? "Pause" : step === 7 ? "Replay attack" : "Play break flow"}</button><button className="rsa-reset" onClick={reset} aria-label="Reset break animation"><ArrowCounterClockwise size={17}/></button><label className="rsa-speed">Speed<select value={speed} onChange={event => setSpeed(event.target.value)}><option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option></select></label></div><div className="rsa-step-actions"><button disabled={step === 0 || !!error} onClick={() => move(step - 1)} aria-label="Previous attack calculation"><CaretLeft size={15}/></button><span>Line by line</span><button disabled={step === 7 || !!error} onClick={() => move(step + 1)} aria-label="Next attack calculation"><CaretRight size={15}/></button></div></div>
       <p className="rsa-footnote">Toy, unpadded RSA · Classical period simulation · <a href="https://quantum.cloud.ibm.com/learning/en/courses/fundamentals-of-quantum-algorithms/phase-estimation-and-factoring/shor-algorithm" target="_blank" rel="noreferrer">How Shor’s algorithm works ↗</a></p>
     </div>
-  </section>;
+  </>;
 }

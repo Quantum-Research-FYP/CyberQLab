@@ -94,8 +94,7 @@ export default function DiscreteLogAttackPlayground({ algorithm }) {
   const secret = config.secret;
   const impact = config.impact;
 
-  return <section className="attack-section dl-attack-section">
-    <div className="section-heading"><div><span className="eyebrow coral">QUANTUM ATTACK WHITEBOARD</span><h2>Recover the hidden discrete logarithm</h2><p>Follow how Shor’s algorithm turns public group elements into a private exponent.</p></div><span className="concept-badge"><Atom size={15} weight="duotone"/> Conceptual simulation</span></div>
+  return <>
 
     <div className="dl-attack-compare">
       <article><span className="round-icon grey"><Cube size={19}/></span><div><small>CLASSICAL ROUTE</small><b>{config.classical}</b><p>Work grows rapidly as secure key sizes increase.</p></div><em>SLOW</em></article>
@@ -130,5 +129,5 @@ export default function DiscreteLogAttackPlayground({ algorithm }) {
       <p className="rsa-footnote"><ClockCounterClockwise size={11}/> Conceptual simulation · Requires a large fault-tolerant quantum computer · No such machine can break production keys today</p>
     </div>
     <div className="explanation-strip"><ShieldWarning size={20} weight="duotone"/><p><b>The security assumption fails</b><span>Classical security relies on reversing the group operation being hard. Shor’s algorithm changes that assumption by solving the discrete logarithm efficiently on a sufficiently capable quantum computer.</span></p></div>
-  </section>;
+  </>;
 }

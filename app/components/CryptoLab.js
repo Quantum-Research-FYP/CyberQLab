@@ -1,17 +1,24 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import ProfileView from "./ProfileView";
+import useLearningProgress from "./useLearningProgress";
 import RSAPlayground from "./RSAPlayground";
 import RSABreakPlayground from "./RSABreakPlayground";
 import DiscreteLogPlayground from "./DiscreteLogPlayground";
 import DiscreteLogAttackPlayground from "./DiscreteLogAttackPlayground";
 import PostQuantumPlayground from "./PostQuantumPlayground";
 import QuantumCourse from "./QuantumCourse";
+import ProfileDropdown from "./ProfileDropdown";
 import { createRSA } from "./rsa.mjs";
 import {
   Atom,
   BookOpen,
   CaretDown,
+  CaretDoubleLeft,
+  CaretDoubleRight,
   CaretLeft,
   CaretRight,
   Check,
@@ -169,26 +176,31 @@ function Logo() {
   return <div className="logo"><span className="logo-mark"><Atom size={22} weight="duotone" /></span><span>CyberQ Lab</span></div>;
 }
 
-function Sidebar({ active, setActive, open, close, workspace, setWorkspace, courseAnswers }) {
+function Sidebar({ active, setActive, open, close, workspace, setWorkspace, courseAnswers, openProfile, collapsed, toggleCollapsed }) {
   const completed = Object.values(courseAnswers).filter((sectionAnswers) => Object.keys(sectionAnswers || {}).length === 5).length;
   const progress = Math.round(completed / 12 * 100);
-  return <aside className={`sidebar ${open ? "open" : ""}`}>
-    <div className="sidebar-head"><Logo /><button className="icon-btn mobile-close" onClick={close}><X size={18}/></button></div>
-    <nav>
+  return <aside id="main-navigation" aria-label="Main navigation" className={`sidebar ${open ? "open" : ""}`}>
+    <div className="sidebar-head"><Logo /><button className="sidebar-toggle icon-btn" onClick={toggleCollapsed} aria-label={collapsed ? "Expand navigation" : "Collapse navigation"} title={collapsed ? "Expand navigation" : "Collapse navigation"} aria-expanded={!collapsed} aria-controls="sidebar-links">{collapsed ? <CaretDoubleRight size={15} weight="bold"/> : <CaretDoubleLeft size={15} weight="bold"/>}</button><button className="icon-btn mobile-close" onClick={close} aria-label="Close navigation"><X size={18}/></button></div>
+    <nav id="sidebar-links" aria-label="Workspace and algorithms">
       <p className="nav-label">Workspace</p>
-      <button className={`nav-item ${workspace === "lab" ? "active" : ""}`} onClick={() => {setWorkspace("lab");close();}}><SquaresFour size={18} weight={workspace === "lab" ? "fill" : "regular"}/> Learning lab</button>
-      <button className={`nav-item ${workspace === "course" ? "active" : ""}`} onClick={() => {setWorkspace("course");close();}}><BookOpen size={18}/> Foundations</button>
-      <button className="nav-item" onClick={() => {setWorkspace("course");close();}}><ClockCounterClockwise size={18}/> Progress <span className="nav-pill">{completed}/12</span></button>
+      <button aria-label="Learning lab" title="Learning lab" className={`nav-item ${workspace === "lab" ? "active" : ""}`} onClick={() => {setWorkspace("lab");close();}}><SquaresFour size={18} weight={workspace === "lab" ? "fill" : "regular"}/><span className="sidebar-link-label">Learning lab</span></button>
+      <button aria-label="Foundations" title="Foundations" className={`nav-item ${workspace === "course" ? "active" : ""}`} onClick={() => {setWorkspace("course");close();}}><BookOpen size={18}/><span className="sidebar-link-label">Foundations</span></button>
+      <Link aria-label="My profile" title="My profile" className={`nav-item ${workspace === "profile" ? "active" : ""}`} href="/profile" prefetch={false} onClick={openProfile}><User size={18}/><span className="sidebar-link-label">My profile</span></Link>
       <p className="nav-label algorithm-label">Algorithms</p>
       <div className="family-row"><span>Factoring based</span><CaretDown size={13}/></div>
-      <button className={`algo-item ${active === "RSA" ? "selected" : ""}`} onClick={() => {setActive("RSA");close();}}><span className="algo-icon violet"><Key size={15}/></span>RSA<span className="risk-dot"/></button>
+      <button aria-label="RSA" title="RSA" className={`algo-item ${active === "RSA" ? "selected" : ""}`} onClick={() => {setActive("RSA");close();}}><span className="algo-icon violet"><Key size={15}/></span><span className="sidebar-link-label">RSA</span><span className="risk-dot"/></button>
       <div className="family-row space-top"><span>Discrete log based</span><CaretDown size={13}/></div>
-      {["Diffie–Hellman", "ECDH"].map((name) => <button key={name} className={`algo-item ${active === name ? "selected" : ""}`} onClick={() => {setActive(name);close();}}><span className={`algo-icon ${name === "ECDH" ? "teal" : "blue"}`}><Function size={15}/></span>{name}<span className="risk-dot"/></button>)}
-      {signatureNames.map((name) => <button key={name} className={`algo-item ${active === name ? "selected" : ""}`} onClick={() => {setActive(name);close();}}><span className={`algo-icon ${name === "DSA" ? "blue" : "teal"}`}><Hash size={15}/></span>{name}<span className="risk-dot"/></button>)}
+      {["Diffie–Hellman", "ECDH"].map((name) => <button key={name} aria-label={name} title={name} className={`algo-item ${active === name ? "selected" : ""}`} onClick={() => {setActive(name);close();}}><span className={`algo-icon ${name === "ECDH" ? "teal" : "blue"}`}><Function size={15}/></span><span className="sidebar-link-label">{name}</span><span className="risk-dot"/></button>)}
+      {signatureNames.map((name) => <button key={name} aria-label={name} title={name} className={`algo-item ${active === name ? "selected" : ""}`} onClick={() => {setActive(name);close();}}><span className={`algo-icon ${name === "DSA" ? "blue" : "teal"}`}><Hash size={15}/></span><span className="sidebar-link-label">{name}</span><span className="risk-dot"/></button>)}
     </nav>
     <div className="sidebar-foot">
-      <div className="course-progress"><div><span>Course progress</span><strong>{progress}%</strong></div><div className="progress"><i style={{width:`${progress}%`}} /></div><small>{completed} of 12 sections completed</small></div>
-      <button className="profile"><span><User size={17}/></span><div><b>Research learner</b><small>Student workspace</small></div><CaretRight size={15}/></button>
+      <section className="sidebar-course-card" aria-label="Your course progress">
+        <div className="sidebar-course-heading"><span><BookOpen size={14}/> COURSE PROGRESS</span><strong>{progress}%</strong></div>
+        <h2>Quantum Cryptography</h2>
+        <div className="sidebar-progress-segments" role="progressbar" aria-label="Completed course sections" aria-valuenow={completed} aria-valuemin={0} aria-valuemax={12} aria-valuetext={`${completed} of 12 sections complete`}>{Array.from({length:12},(_,index)=><i key={index} className={index < completed ? "complete" : ""}/>)}</div>
+        <p><b>{completed}</b> of 12 sections completed</p>
+      </section>
+
     </div>
   </aside>;
 }
@@ -305,21 +317,50 @@ function ThreatMap() {
   </section>;
 }
 
-export default function CryptoLab() {
-  const [active, setActive] = useState("RSA");
+export default function CryptoLab({ user, initialLearning, initialWorkspace, initialAlgorithm }) {
+  const router = useRouter();
+  const lastActivity = initialLearning.currentActivity;
+  const { answers: courseAnswers, answerQuestion, trackActivity, flush, saving, saveError } = useLearningProgress(initialLearning);
+  const [active, setActive] = useState(initialAlgorithm || lastActivity?.algorithm || "RSA");
   const [current, setCurrent] = useState(0);
-  const [tab, setTab] = useState("foundation");
+  const [tab, setTab] = useState(initialAlgorithm ? "foundation" : lastActivity?.stage || "foundation");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [navCollapsed, setNavCollapsed] = useState(false);
+  useEffect(() => {
+    try { setNavCollapsed(window.localStorage.getItem("cyberq-nav-collapsed") === "true"); } catch {}
+  }, []);
+  const toggleNavigation = () => {
+    const next = !navCollapsed;
+    setNavCollapsed(next);
+    try { window.localStorage.setItem("cyberq-nav-collapsed", String(next)); } catch {}
+  };
   const [workflowFocus, setWorkflowFocus] = useState(false);
-  const [workspace, setWorkspace] = useState("lab");
-  const [courseAnswers, setCourseAnswers] = useState({});
+  const [workspace, setWorkspaceState] = useState(initialWorkspace || lastActivity?.workspace || "lab");
+  const [courseItem, setCourseItem] = useState(lastActivity?.workspace === "course" && lastActivity.sectionIndex !== null ? { sectionIndex: lastActivity.sectionIndex, type: lastActivity.resource } : null);
+  const setWorkspace = (next) => {
+    if (initialWorkspace === "profile" && next !== "profile") { router.push(`/?workspace=${next}`); return; }
+    setWorkspaceState(next);
+  };
+  const openProfile = async (event) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    try { await flush(); router.push("/profile"); router.refresh(); } catch {}
+  };
   const [rsaP, setRsaP] = useState("61");
   const [rsaQ, setRsaQ] = useState("53");
   const rsaKey = useMemo(() => createRSA(rsaP, rsaQ), [rsaP, rsaQ]);
   const openBreak = () => { setWorkflowFocus(false); setTab("attack"); };
   const data = algorithms[active];
-  const selectAlgorithm = (name) => { setWorkspace("lab"); setActive(name); setCurrent(0); setTab("foundation"); };
+  const selectAlgorithm = (name) => { if (initialWorkspace === "profile") { router.push(`/?workspace=lab&algorithm=${encodeURIComponent(name)}`); return; } setWorkspace("lab"); setActive(name); setCurrent(0); setTab("foundation"); };
   const stage = useMemo(() => current === data.steps.length - 1 ? "Ready to inspect the attack" : "Explore each step", [current, data]);
+
+  useEffect(() => {
+    if (workspace === "profile") return;
+    const activity = workspace === "lab" ? { workspace: "lab", algorithm: active, stage: tab } : { workspace: "course", sectionIndex: courseItem?.sectionIndex ?? null, ...(courseItem ? { resource: courseItem.type } : {}) };
+    trackActivity(activity);
+  }, [workspace, active, tab, courseItem, trackActivity]);
+
+  useEffect(() => { setWorkflowFocus(false); }, [workspace, active, tab]);
 
   useEffect(() => {
     if (!workflowFocus) return;
@@ -333,13 +374,14 @@ export default function CryptoLab() {
     };
   }, [workflowFocus]);
 
-  return <div className="app-shell">
-    <Sidebar active={active} setActive={selectAlgorithm} open={menuOpen} close={() => setMenuOpen(false)} workspace={workspace} setWorkspace={setWorkspace} courseAnswers={courseAnswers}/>
+  return <div className={`app-shell ${navCollapsed ? "nav-collapsed" : ""}`}>
+    <Sidebar active={active} setActive={selectAlgorithm} open={menuOpen} close={() => setMenuOpen(false)} workspace={workspace} setWorkspace={setWorkspace} courseAnswers={courseAnswers} openProfile={openProfile} collapsed={navCollapsed} toggleCollapsed={toggleNavigation}/>
     {menuOpen && <button className="scrim" onClick={() => setMenuOpen(false)} aria-label="Close menu"/>}
     <main className="main">
-      <header className="topbar"><button className="mobile-menu icon-btn" onClick={() => setMenuOpen(true)}><SquaresFour size={20}/></button><div className="crumbs"><span>{workspace === "course" ? "Foundations" : "Learning lab"}</span><CaretRight size={13}/><b>{workspace === "course" ? "Course library" : active}</b></div><div className="header-actions"><button className="text-button"><BookOpen size={17}/> Glossary</button><button className="avatar"><User size={16}/></button></div></header>
+      <header className="topbar"><button className="mobile-menu icon-btn" aria-label="Open navigation" aria-controls="main-navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><SquaresFour size={20}/></button><div className="crumbs"><span>{workspace === "profile" ? "Account" : workspace === "course" ? "Foundations" : "Learning lab"}</span><CaretRight size={13}/><b>{workspace === "profile" ? "My profile" : workspace === "course" ? "Course library" : active}</b></div><div className="header-actions"><ProfileDropdown user={user} onOpenProfile={openProfile}/></div></header>
       <div className="content">
-        {workspace === "course" ? <QuantumCourse answers={courseAnswers} setAnswers={setCourseAnswers} onOpenAlgorithm={selectAlgorithm}/> : <>
+        {saveError && <div className="learning-save-error" role="alert"><span>{saveError}</span><button onClick={() => flush().catch(() => {})} disabled={saving}>{saving ? "Saving…" : "Retry save"}</button></div>}
+        {workspace === "profile" ? <ProfileView user={user} learning={initialLearning}/> : workspace === "course" ? <QuantumCourse answers={courseAnswers} onAnswer={answerQuestion} onOpenAlgorithm={selectAlgorithm} activeItem={courseItem} setActiveItem={setCourseItem}/> : <>
         <section className="intro">
           <div><div className="family-tag"><i className={data.color}/>{data.family}</div><h1>{active}</h1><p>{data.category}</p></div>
           <div className="threat-chip"><span><Warning size={18} weight="fill"/></span><div><small>QUANTUM STATUS</small><b>Vulnerable to Shor</b></div></div>
@@ -363,9 +405,25 @@ export default function CryptoLab() {
           <div className="continue-card"><div><Atom size={21} weight="duotone"/><span><b>Next: challenge the assumption</b><small>See how a quantum computer finds the hidden structure.</small></span></div><button onClick={() => setTab("attack")}>Open quantum attack <CaretRight size={16}/></button></div>
         </>}
 
-        {tab === "attack" && <>{active === "RSA" ? <RSABreakPlayground n={rsaKey.n} e={rsaKey.e} firstPrime={rsaKey.p} onEdit={() => setTab("foundation")}/> : <DiscreteLogAttackPlayground algorithm={active}/>}<ThreatMap/><div className="continue-card"><div><ShieldCheck size={21} weight="duotone"/><span><b>Next: rebuild protection</b><small>Replace the vulnerable hardness assumption.</small></span></div><button onClick={() => setTab("protect")}>View post-quantum path <CaretRight size={16}/></button></div></>}
+        {tab === "attack" && <>
+          {workflowFocus && <button className="focus-backdrop" onClick={() => setWorkflowFocus(false)} aria-label="Exit workflow focus mode"/>}
+          <section className={`foundation-card workflow-whiteboard quantum-whiteboard ${workflowFocus ? "workflow-focus" : ""}`}>
+            <div className="card-top"><div><span className="eyebrow coral">QUANTUM WORKFLOW</span><h2>{active} attack whiteboard</h2><p className="rsa-break-subtitle">{active === "RSA" ? "From a public key to a recovered secret, one line at a time." : "Trace the hidden structure from public values to a recovered private exponent."}</p></div><div className="workflow-head-actions"><span className="manual-badge"><span className="pulse-dot"/> Interactive whiteboard</span><button className="focus-button" aria-label={workflowFocus ? "Exit focus" : "Focus mode"} onClick={() => setWorkflowFocus(value => !value)}>{workflowFocus ? <CornersIn size={15}/> : <CornersOut size={15}/>} {workflowFocus ? "Exit focus" : "Focus mode"}</button></div></div>
+            {active === "RSA" ? <RSABreakPlayground n={rsaKey.n} e={rsaKey.e} firstPrime={rsaKey.p} onEdit={() => setTab("foundation")}/> : <DiscreteLogAttackPlayground algorithm={active}/>}
+            {workflowFocus && <p className="focus-hint">Step through each line or press play · Esc closes focus mode</p>}
+          </section>
+          <ThreatMap/><div className="continue-card"><div><ShieldCheck size={21} weight="duotone"/><span><b>Next: rebuild protection</b><small>Replace the vulnerable hardness assumption.</small></span></div><button onClick={() => setTab("protect")}>View post-quantum path <CaretRight size={16}/></button></div></>
+        }
 
-        {tab === "protect" && <><PostQuantumPlayground algorithm={active}/><ThreatMap/></>}
+        {tab === "protect" && <>
+          {workflowFocus && <button className="focus-backdrop" onClick={() => setWorkflowFocus(false)} aria-label="Exit workflow focus mode"/>}
+          <section className={`foundation-card workflow-whiteboard postquantum-whiteboard ${workflowFocus ? "workflow-focus" : ""}`}>
+            <div className="card-top"><div><span className="eyebrow mint">POST-QUANTUM WORKFLOW</span><h2>{active} migration whiteboard</h2><p className="rsa-break-subtitle">Move to a quantum-resistant foundation, one decision at a time.</p></div><div className="workflow-head-actions"><span className="manual-badge"><span className="pulse-dot"/> Interactive whiteboard</span><button className="focus-button" aria-label={workflowFocus ? "Exit focus" : "Focus mode"} onClick={() => setWorkflowFocus(value => !value)}>{workflowFocus ? <CornersIn size={15}/> : <CornersOut size={15}/>} {workflowFocus ? "Exit focus" : "Focus mode"}</button></div></div>
+            <PostQuantumPlayground algorithm={active}/>
+            {workflowFocus && <p className="focus-hint">Step through each line or press play · Esc closes focus mode</p>}
+          </section>
+          <ThreatMap/>
+        </>}
         </>}
         <footer><Logo/><span>Conceptual learning environment · Examples use toy values</span><span>Built for curious minds</span></footer>
       </div>

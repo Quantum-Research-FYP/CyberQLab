@@ -22,3 +22,7 @@ pnpm-debug.log*
 .idea/
 .vscode/
 
+
+# Browser test output
+.playwright-results/
+playwright-report/

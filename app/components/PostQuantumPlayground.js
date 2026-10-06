@@ -93,8 +93,7 @@ export default function PostQuantumPlayground({ algorithm }) {
   const reset = () => { setStep(0); setPlaying(false); };
   const move = next => { setStep(next); setPlaying(false); };
 
-  return <section className="protect-view pq-view">
-    <div className="section-heading pq-heading"><div><span className="eyebrow mint">POST-QUANTUM MIGRATION WHITEBOARD</span><h2>Move {algorithm} to a quantum-resistant foundation</h2><p>{config.role}. Follow the migration one decision at a time.</p></div><span className="concept-badge pq-standard-badge"><ShieldCheck size={15} weight="fill"/> NIST standardized</span></div>
+  return <>
 
     <div className="pq-route" aria-label="Migration route">
       <article className={step >= 0 ? "active old" : "old"}><span><Warning size={19}/></span><small>CURRENT</small><b>{algorithm}</b><em>Quantum vulnerable</em></article>
@@ -125,5 +124,5 @@ export default function PostQuantumPlayground({ algorithm }) {
     </div>
 
     <div className="pq-standard-links"><span>STANDARDIZED BUILDING BLOCKS</span><a href="https://csrc.nist.gov/pubs/fips/203/final" target="_blank" rel="noreferrer"><b>FIPS 203</b> ML-KEM</a><a href="https://csrc.nist.gov/pubs/fips/204/final" target="_blank" rel="noreferrer"><b>FIPS 204</b> ML-DSA</a><a href="https://csrc.nist.gov/pubs/fips/205/final" target="_blank" rel="noreferrer"><b>FIPS 205</b> SLH-DSA</a></div>
-  </section>;
+  </>;
 }
