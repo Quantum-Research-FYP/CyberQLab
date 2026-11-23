@@ -52,7 +52,7 @@ export default function AuthForm({ mode, oauthError = "" }) {
 
   return <main className="auth-page">
     <header className="auth-header">
-      <Link className="logo" href="/login" aria-label="CyberQ Lab home"><span className="logo-mark"><Atom size={22} weight="duotone" /></span><span>CyberQ Lab</span></Link>
+      <Link className="logo" href="/login" aria-label="CyberQ Lab home"><span className="logo-mark"><Atom size={21} weight="regular" /></span><span>CyberQ Lab</span></Link>
       <div className="auth-header-actions"><span>Quantum ideas. Real understanding.</span></div>
     </header>
     <div className="auth-layout">
@@ -94,9 +94,7 @@ export default function AuthForm({ mode, oauthError = "" }) {
             <button className="auth-submit" disabled={pending} type="submit">{pending ? <><CircleNotch size={18} className="auth-spinner" />{signup ? "Creating your account…" : "Signing you in…"}</> : <>{signup ? "Create account" : "Log in"}<ArrowRight size={17} /></>}</button>
           </form>
           <p className="auth-switch">{signup ? "Already have an account?" : "New to CyberQ Lab?"} <Link href={signup ? "/login" : "/signup"}>{signup ? "Log in" : "Create an account"}<ArrowRight size={13} /></Link></p>
-          <div className="auth-trust"><ShieldCheck size={15} /> Your next discovery starts here.</div>
         </div>
-        <footer className="auth-footer">CyberQ Lab <span>·</span> Learn. Experiment. Understand.</footer>
       </section>
     </div>
   </main>;

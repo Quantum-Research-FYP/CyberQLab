@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { sections } from "../app/lib/course-content.mjs";
-import { courseStats, courseSummaries, validateLearningEvent, activityDetails } from "../app/lib/learning-utils.mjs";
+import { courseStats, courseSummaries, validateLearningEvent, activityDetails, hasPassedCourse, sectionResult } from "../app/lib/learning-utils.mjs";
 
 test("new learners have honest empty course statistics", () => {
   const stats = courseStats();
@@ -21,6 +21,16 @@ test("section completion and accuracy reflect actual valid answers", () => {
   assert.equal(stats.accuracy, 83);
   answers[0][0] = (sections[0].quiz[0][2]+1)%3;
   assert.equal(courseStats(answers).correct, 4);
+});
+
+test("a course certificate requires every section quiz to be passed", () => {
+  const allCorrect = Object.fromEntries(sections.map((section, sectionIndex) => [sectionIndex, Object.fromEntries(section.quiz.map((question, questionIndex) => [questionIndex, question[2]]))]));
+  assert.equal(hasPassedCourse(allCorrect), true);
+  allCorrect[3][0] = (sections[3].quiz[0][2] + 1) % sections[3].quiz[0][1].length;
+  allCorrect[3][1] = (sections[3].quiz[1][2] + 1) % sections[3].quiz[1][1].length;
+  assert.equal(sectionResult(sections[3], allCorrect[3]).percentage, 60);
+  assert.equal(hasPassedCourse(allCorrect), false);
+  assert.equal(courseStats(allCorrect).completed, sections.length - 1);
 });
 
 test("only existing quiz questions and valid activities can be saved", () => {

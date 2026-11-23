@@ -1,18 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, Atom, BookOpen, Brain, CaretLeft, CaretRight, CheckCircle, Circuitry, Function, Key, Lightning, LockKey, Medal, Play, ShieldCheck, Sparkle, Target, Warning, XCircle } from "@phosphor-icons/react";
+import { ArrowLeft, Atom, BookOpen, Brain, CaretLeft, CaretRight, CheckCircle, Circuitry, DownloadSimple, Function, Key, Lightning, LockKey, Medal, Play, ShieldCheck, Sparkle, Target, Warning, XCircle } from "@phosphor-icons/react";
 
-import { sections, videos } from "../lib/course-content.mjs";
+import { defaultCourse, sections, videos } from "../lib/course-content.mjs";
+import { hasPassedCourse, sectionResult } from "../lib/learning-utils.mjs";
 const sectionIcons = { Key, Function, Atom, Warning, LockKey, Circuitry, ShieldCheck, Brain, Lightning, Sparkle, Target, BookOpen };
-const PASS_MARK = 80;
 
 function quizResult(section, answers = {}) {
-  const total = section.quiz.length;
-  const answered = section.quiz.filter((item, index) => answers[index] !== undefined).length;
-  const score = section.quiz.reduce((sum, item, index) => sum + (answers[index] === item[2] ? 1 : 0), 0);
-  const percentage = total ? Math.round((score / total) * 100) : 0;
-  return { total, answered, score, percentage, done: answered === total, passed: answered === total && percentage >= PASS_MARK };
+  const result = sectionResult(section, answers);
+  return { ...result, score: result.correct, done: result.complete };
 }
 
 function QuizRunner({ section, sectionIndex, answers, answer, openItem }) {
@@ -77,6 +74,7 @@ function QuizRunner({ section, sectionIndex, answers, answer, openItem }) {
       <div className="quiz-result-actions">
         <button className="quiz-review-button" type="button" onClick={retryQuiz}><CaretLeft size={17}/> Retry quiz</button>
         {passed && sectionIndex < sections.length - 1 && <button className="quiz-continue-button" type="button" onClick={() => openItem(sectionIndex + 1, "lesson")}>Continue to section {sectionIndex + 2} <CaretRight size={17}/></button>}
+        {passed && sectionIndex === sections.length - 1 && <button className="quiz-certificate-button" type="button" onClick={() => openItem(sectionIndex, "certificate")}><Medal size={18}/> View your certificate</button>}
       </div>
     </section>;
   }
@@ -116,40 +114,61 @@ function QuizRunner({ section, sectionIndex, answers, answer, openItem }) {
   </section>;
 }
 
-export default function QuantumCourse({answers,onAnswer,onOpenAlgorithm,activeItem,setActiveItem}){
+function CertificatePage({ learnerName }) {
+  return <section className="course-certificate-page">
+    <div className="certificate-celebration"><span><Sparkle size={17} weight="fill"/> COURSE COMPLETED</span><h2>Congratulations, {learnerName}!</h2><p>You passed every section of Quantum Cryptography. Your certificate is ready to download.</p></div>
+    <div className="certificate-preview" aria-label={`Course completion certificate for ${learnerName}`}>
+      <div className="certificate-inner">
+        <div className="certificate-brand"><span><Atom size={30} weight="duotone"/></span><b>CYBERQ LAB</b></div>
+        <small>CERTIFICATE OF COMPLETION</small>
+        <h3>This certificate is proudly presented to</h3>
+        <strong>{learnerName}</strong>
+        <i/>
+        <p>for successfully completing the course</p>
+        <h4>Quantum Cryptography</h4>
+        <div className="certificate-seal"><CheckCircle size={42} weight="fill"/></div>
+      </div>
+    </div>
+    <div className="certificate-actions"><a href={`/api/certificate?courseId=${encodeURIComponent(defaultCourse.id)}`}><DownloadSimple size={19}/> Download PDF certificate</a><p>Downloads as a print-ready PDF document.</p></div>
+  </section>;
+}
+
+export default function QuantumCourse({user,answers,onAnswer,onOpenAlgorithm,activeItem,setActiveItem}){
   const [courseQuery,setCourseQuery]=useState("");
   const answer=onAnswer;
+  const coursePassed=hasPassedCourse(answers,defaultCourse);
   const isUnlocked = sectionIndex => sectionIndex === 0 || quizResult(sections[sectionIndex - 1], answers[sectionIndex - 1] || {}).passed;
-  const openItem=(sectionIndex,type)=>{if(!isUnlocked(sectionIndex)) return;setActiveItem({sectionIndex,type});window.scrollTo({top:0,behavior:"smooth"})};
+  const openItem=(sectionIndex,type)=>{if(!isUnlocked(sectionIndex)||(type==="certificate"&&!coursePassed)) return;setActiveItem({sectionIndex,type});window.scrollTo({top:0,behavior:"smooth"})};
 
   useEffect(() => {
-    if (activeItem && !isUnlocked(activeItem.sectionIndex)) setActiveItem({ sectionIndex: 0, type: "lesson" });
-  }, [activeItem, answers, setActiveItem]);
+    if (activeItem && (!isUnlocked(activeItem.sectionIndex) || (activeItem.type === "certificate" && !coursePassed))) setActiveItem({ sectionIndex: 0, type: "lesson" });
+  }, [activeItem, answers, coursePassed, setActiveItem]);
 
   if(!activeItem){
     return <div className="course-shell course-library">
-      <section className="library-hero"><span className="eyebrow">CYBERQ LAB LEARNING</span><h1>Find all courses</h1><p>Build practical skills in quantum computing, cybersecurity, and quantum-safe system design.</p></section>
+      <section className="library-hero"><span className="eyebrow">CYBERQ LAB LEARNING</span><h1>Find all courses</h1></section>
       <div className="library-toolbar"><div><b>Available courses</b><span>1 course</span></div><label><span>Search courses</span><input type="search" value={courseQuery} onChange={event=>setCourseQuery(event.target.value)} placeholder="Search by topic" aria-label="Search courses"/></label></div>
-      <div className="course-library-grid">{"quantum cryptography qkd bb84 post-quantum cybersecurity".includes(courseQuery.trim().toLowerCase())?<article className="course-card"><div className="course-card-cover"><span><Atom size={34} weight="duotone"/></span><small>FOUNDATIONS</small><strong>Quantum<br/>Cryptography</strong><i>CyberQ Lab</i></div><div className="course-card-copy"><div className="course-card-tags"><span>Quantum security</span><span>Beginner → intermediate</span></div><h2>Quantum Cryptography</h2><p>Learn QKD, BB84, implementation security, quantum threats, post-quantum cryptography, and hybrid system design.</p><div className="course-card-meta"><span><BookOpen size={16}/>12 sections</span><span><Target size={16}/>60 quiz questions</span></div><button onClick={()=>openItem(0,"lesson")}>View course <CaretRight size={17}/></button></div></article>:<div className="course-library-empty"><BookOpen size={28}/><b>No courses found</b><span>Try a different topic or keyword.</span></div>}</div>
+      <div className="course-library-grid">{"quantum cryptography qkd bb84 post-quantum cybersecurity".includes(courseQuery.trim().toLowerCase())?<article className="course-card"><div className="course-card-cover"><span><Atom size={34} weight="duotone"/></span><small>FOUNDATIONS</small><strong>Quantum<br/>Cryptography</strong><i>CyberQ Lab</i></div><div className="course-card-copy"><div className="course-card-tags"><span>Quantum security</span><span>Beginner → intermediate</span></div><h2>Quantum Cryptography</h2><p>Learn QKD, BB84, implementation security, quantum threats, post-quantum cryptography, and hybrid system design.</p><div className="course-card-meta"><span><BookOpen size={16}/>12 sections</span><span><Target size={16}/>60 quiz questions</span></div><div className="course-card-actions"><button onClick={()=>openItem(0,"lesson")}>View course <CaretRight size={17}/></button>{coursePassed&&<button onClick={()=>openItem(sections.length-1,"certificate")}><Medal size={17}/> Certificate</button>}</div></div></article>:<div className="course-library-empty"><BookOpen size={28}/><b>No courses found</b><span>Try a different topic or keyword.</span></div>}</div>
     </div>;
   }
 
   if(activeItem){
     const {sectionIndex,type}=activeItem, section=sections[sectionIndex], Icon=sectionIcons[section.icon] || BookOpen, a=answers[sectionIndex]||{}, video=videos[section.video];
-    const labels={lesson:"Lesson and video",practice:"Algorithm practice",quiz:"Section quiz"};
+    const labels={lesson:"Lesson and video",practice:"Algorithm practice",quiz:"Section quiz",certificate:"Course certificate"};
     return <div className="course-reader-shell">
       <aside className="course-reader-nav">
         <button className="reader-back" onClick={()=>setActiveItem(null)}><ArrowLeft size={19}/> <span>All courses</span></button>
         <div className="reader-course-name"><small>CYBERQ LAB COURSE</small><h2>Quantum Cryptography</h2><p>Basic to intermediate</p></div>
         <div className="reader-nav-divider"/><b className="reader-nav-label">Lessons</b>
-        <nav>{sections.map((navSection,navIndex)=>{const current=navIndex===sectionIndex, unlocked=isUnlocked(navIndex), result=quizResult(navSection,answers[navIndex]||{});return <div className={`reader-nav-section ${current?"current":""} ${unlocked?"":"locked"}`} key={navSection.title}><button disabled={!unlocked} onClick={()=>openItem(navIndex,"lesson")} aria-label={unlocked?navSection.title:`${navSection.title} locked`}><span>{String(navIndex+1).padStart(2,"0")}</span><span className="reader-nav-title">{navSection.title}{result.done&&<small className={result.passed?"passed":"failed"}>{result.score}/{result.total} · {result.percentage}%</small>}</span>{unlocked?<CaretRight size={14}/>:<LockKey size={14}/>}</button>{current&&<div className="reader-subnav"><button className={type==="lesson"?"active":""} onClick={()=>openItem(navIndex,"lesson")}>Lesson and video</button>{navSection.algorithms&&<button className={type==="practice"?"active":""} onClick={()=>openItem(navIndex,"practice")}>Algorithm practice</button>}<button className={type==="quiz"?"active":""} onClick={()=>openItem(navIndex,"quiz")}>Section quiz</button></div>}</div>})}</nav>
+        <nav>{sections.map((navSection,navIndex)=>{const current=navIndex===sectionIndex, unlocked=isUnlocked(navIndex), result=quizResult(navSection,answers[navIndex]||{});return <div className={`reader-nav-section ${current?"current":""} ${unlocked?"":"locked"}`} key={navSection.title}><button disabled={!unlocked} onClick={()=>openItem(navIndex,"lesson")} aria-label={unlocked?navSection.title:`${navSection.title} locked`}><span>{String(navIndex+1).padStart(2,"0")}</span><span className="reader-nav-title">{navSection.title}{result.done&&<small className={result.passed?"passed":"failed"}>{result.score}/{result.total} · {result.percentage}%</small>}</span>{unlocked?<CaretRight size={14}/>:<LockKey size={14}/>}</button>{current&&<div className="reader-subnav"><button className={type==="lesson"?"active":""} onClick={()=>openItem(navIndex,"lesson")}>Lesson and video</button>{navSection.algorithms&&<button className={type==="practice"?"active":""} onClick={()=>openItem(navIndex,"practice")}>Algorithm practice</button>}<button className={type==="quiz"?"active":""} onClick={()=>openItem(navIndex,"quiz")}>Section quiz</button>{coursePassed&&navIndex===sections.length-1&&<button className={type==="certificate"?"active":""} onClick={()=>openItem(navIndex,"certificate")}>Certificate</button>}</div>}</div>})}</nav>
       </aside>
       <main className="course-resource-page">
-      <div className="resource-topbar"><span>{section.level}</span><span>Section {sectionIndex+1} of 12</span></div>
-      <section className="reader-hero"><span className="lesson-icon"><Icon size={27} weight="duotone"/></span><div><small>{section.level} · {labels[type]}</small><h1>{section.title}</h1><p>{section.objectives[0]}</p></div></section>
+      <div className="resource-topbar"><span>{type==="certificate"?"Course complete":section.level}</span><span>{type==="certificate"?"Certificate":`Section ${sectionIndex+1} of 12`}</span></div>
+      {type!=="certificate"&&<section className="reader-hero"><span className="lesson-icon"><Icon size={27} weight="duotone"/></span><div><small>{section.level} · {labels[type]}</small><h1>{section.title}</h1><p>{section.objectives[0]}</p></div></section>}
       {type==="lesson"&&<main className="resource-content"><section className="reader-objectives"><Target size={19}/><div><b>Learning objectives</b><ul>{section.objectives.map(x=><li key={x}>{x}</li>)}</ul></div></section><div className="reader-content">{section.content.map(([title,copy],contentIndex)=><article key={title}><span>{String(contentIndex+1).padStart(2,"0")}</span><div><h2>{title}</h2><p>{copy}</p></div></article>)}</div><section className="reader-key-idea"><Sparkle size={21} weight="fill"/><div><b>Key idea</b><p>{section.keyIdea}</p></div></section><section className="lesson-activity"><Circuitry size={24} weight="duotone"/><div><small>PRACTICAL ACTIVITY</small><h2>Apply what you learned</h2><p>{section.lab}</p></div></section><section className="course-video resource-video"><div className="video-frame"><iframe src={`https://www.youtube-nocookie.com/embed/${video[0]}?rel=0`} title={video[1]} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen/></div><div><span><Play size={16} weight="fill"/> RECOMMENDED VIDEO</span><h3>{video[1]}</h3><p>{video[2]} · YouTube privacy-enhanced embed.</p><a href={`https://www.youtube.com/watch?v=${video[0]}`} target="_blank" rel="noreferrer">Open on YouTube ↗</a></div></section></main>}
       {type==="practice"&&<section className="resource-practice"><Function size={28} weight="duotone"/><div><small>INTERACTIVE PRACTICE</small><h2>{section.algorithms?"Choose an algorithm whiteboard":"Review this section in the cryptography lab"}</h2><p>Use an animated playground to connect the lesson with each calculation and security step.</p>{section.algorithms&&<div>{section.algorithms.map(name=><button onClick={()=>onOpenAlgorithm(name)} key={name}>{name}<CaretRight size={15}/></button>)}</div>}</div></section>}
       {type==="quiz"&&<QuizRunner key={sectionIndex} section={section} sectionIndex={sectionIndex} answers={a} answer={answer} openItem={openItem}/>}
+      {type==="certificate"&&coursePassed&&<CertificatePage learnerName={user?.name || "CyberQ Learner"}/>}
       </main>
     </div>;
   }

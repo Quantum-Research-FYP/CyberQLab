@@ -2,8 +2,21 @@ import { courses, defaultCourse, sections } from "./course-content.mjs";
 
 export const labAlgorithms = ["RSA", "Diffie–Hellman", "ECDH", "DSA", "ECDSA", "EdDSA / Ed25519"];
 export const stageLabels = { foundation: "Classical foundation", attack: "Quantum attack", protect: "Post-quantum path" };
-export const resourceLabels = { lesson: "Lesson and video", practice: "Algorithm practice", quiz: "Section quiz" };
+export const resourceLabels = { lesson: "Lesson and video", practice: "Algorithm practice", quiz: "Section quiz", certificate: "Course certificate" };
 const index = (value, max) => Number.isInteger(value) && value >= 0 && value < max;
+export const COURSE_PASS_MARK = 80;
+
+export function sectionResult(section, answers = {}) {
+  const total = section?.quiz?.length || 0;
+  const answered = section?.quiz?.filter((question, questionIndex) => index(answers[questionIndex], question[1].length)).length || 0;
+  const correct = section?.quiz?.filter((question, questionIndex) => answers[questionIndex] === question[2]).length || 0;
+  const percentage = total ? Math.round((correct / total) * 100) : 0;
+  return { answered, correct, total, percentage, complete: answered === total, passed: total > 0 && answered === total && percentage >= COURSE_PASS_MARK };
+}
+
+export function hasPassedCourse(answers = {}, course = defaultCourse) {
+  return Boolean(course?.sections?.length) && course.sections.every((section, sectionIndex) => sectionResult(section, answers[sectionIndex] || {}).passed);
+}
 
 export function validateLearningEvent(event) {
   if (!event || typeof event !== "object") return null;
@@ -37,10 +50,8 @@ export function validateLearningEvent(event) {
 export function courseStats(answers = {}, course = defaultCourse) {
   const courseSections = course.sections || [];
   const sectionStats = courseSections.map((section, i) => {
-    const selected = answers[i] || {};
-    const answered = section.quiz.filter((q, j) => index(selected[j], q[1].length)).length;
-    const correct = section.quiz.filter((q, j) => selected[j] === q[2]).length;
-    return { title: section.title, level: section.level, answered, correct, total: section.quiz.length, complete: answered === section.quiz.length };
+    const result = sectionResult(section, answers[i] || {});
+    return { title: section.title, level: section.level, ...result, complete: result.passed };
   });
   const completed = sectionStats.filter(s => s.complete).length;
   const answered = sectionStats.reduce((sum,s) => sum+s.answered,0);

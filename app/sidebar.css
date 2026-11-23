@@ -8,6 +8,8 @@
 .sidebar-course-heading > span { display: inline-flex; align-items: center; gap: 5px; color: var(--color-text-muted); font-size: 8px; font-weight: 700; letter-spacing: .7px; }
 .sidebar-course-heading > strong { color: var(--color-purple-text); background: var(--color-purple-soft); border-radius: 6px; padding: 4px 6px; font-size: 10px; font-weight: 800; line-height: 1; }
 .sidebar-course-card h2 { font: 700 11px/1.5 "Manrope", sans-serif; color: var(--color-text-primary); margin: 9px 0 11px; }
+.sidebar-progress-bar { height: 6px; border-radius: 999px; background: var(--color-border); overflow: hidden; }
+.sidebar-progress-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--color-purple-fill); transition: width .3s ease; }
 .sidebar-progress-segments { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 3px; }
 .sidebar-progress-segments > i { display: block; height: 5px; border-radius: 3px; background: var(--color-border-strong); opacity: .45; }
 .sidebar-progress-segments > i.complete { background: var(--color-purple-fill); opacity: 1; }

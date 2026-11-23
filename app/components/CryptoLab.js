@@ -177,7 +177,7 @@ const overview = [
 ];
 
 function Logo() {
-  return <div className="logo"><span className="logo-mark"><Atom size={22} weight="duotone" /></span><span>CyberQ Lab</span></div>;
+  return <div className="logo"><span className="logo-mark"><Atom size={21} weight="regular" /></span><span>CyberQ Lab</span></div>;
 }
 
 function Sidebar({ active, setActive, open, close, workspace, setWorkspace, courseAnswers, openProfile, collapsed, toggleCollapsed }) {
@@ -201,7 +201,7 @@ function Sidebar({ active, setActive, open, close, workspace, setWorkspace, cour
       <section className="sidebar-course-card" aria-label="Your course progress">
         <div className="sidebar-course-heading"><span><BookOpen size={14}/> COURSE PROGRESS</span><strong>{progress}%</strong></div>
         <h2>Quantum Cryptography</h2>
-        <div className="sidebar-progress-segments" role="progressbar" aria-label="Completed course sections" aria-valuenow={completed} aria-valuemin={0} aria-valuemax={12} aria-valuetext={`${completed} of 12 sections complete`}>{Array.from({length:12},(_,index)=><i key={index} className={index < completed ? "complete" : ""}/>)}</div>
+        <div className="sidebar-progress-bar" role="progressbar" aria-label="Completed course sections" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-valuetext={`${progress}% completed`}><i style={{width:`${progress}%`}}/></div>
         <p><b>{completed}</b> of 12 sections completed</p>
       </section>
 
@@ -411,7 +411,7 @@ export default function CryptoLab({ user, initialLearning, initialWorkspace, ini
       <header className="topbar"><button className="mobile-menu icon-btn" aria-label="Open navigation" aria-controls="main-navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><SquaresFour size={20}/></button><div className="crumbs"><span>{workspace === "home" ? "CyberQ Lab" : workspace === "profile" ? "Account" : workspace === "course" ? "Foundations" : "Learning lab"}</span>{workspace !== "home" && <><CaretRight size={13}/><b>{workspace === "profile" ? "My profile" : workspace === "course" ? "Course library" : active}</b></>}</div><div className="header-actions"><ProfileDropdown user={user} onOpenProfile={openProfile}/></div></header>
       <div className="content">
         {saveError && <div className="learning-save-error" role="alert"><span>{saveError}</span><button onClick={() => flush().catch(() => {})} disabled={saving}>{saving ? "Saving…" : "Retry save"}</button></div>}
-        {workspace === "home" ? <HomeWorkspace user={user} courseAnswers={courseAnswers} openLab={selectAlgorithm} openCourse={() => setWorkspace("course")}/> : workspace === "profile" ? <ProfileView user={user} learning={initialLearning}/> : workspace === "course" ? <QuantumCourse answers={courseAnswers} onAnswer={answerQuestion} onOpenAlgorithm={selectAlgorithm} activeItem={courseItem} setActiveItem={setCourseItem}/> : <>
+        {workspace === "home" ? <HomeWorkspace user={user} courseAnswers={courseAnswers} openLab={selectAlgorithm} openCourse={() => setWorkspace("course")}/> : workspace === "profile" ? <ProfileView user={user} learning={initialLearning}/> : workspace === "course" ? <QuantumCourse user={user} answers={courseAnswers} onAnswer={answerQuestion} onOpenAlgorithm={selectAlgorithm} activeItem={courseItem} setActiveItem={setCourseItem}/> : <>
         <section className="intro">
           <div><div className="family-tag"><i className={data.color}/>{data.family}</div><h1>{active}</h1><p>{data.category}</p></div>
           <div className="threat-chip"><span><Warning size={18} weight="fill"/></span><div><small>QUANTUM STATUS</small><b>Vulnerable to Shor</b></div></div>
@@ -427,7 +427,7 @@ export default function CryptoLab({ user, initialLearning, initialWorkspace, ini
         {tab === "foundation" && <>
           {workflowFocus && <button className="focus-backdrop" onClick={() => setWorkflowFocus(false)} aria-label="Exit workflow focus mode"/>}
           <section className={`foundation-card ${workflowFocus ? "workflow-focus" : ""}`}>
-            <div className="card-top"><div><span className="eyebrow">CLASSICAL WORKFLOW</span><h2>{active === "RSA" ? "RSA key playground" : `${active} whiteboard`}</h2></div><div className="workflow-head-actions"><span className="manual-badge"><span className="pulse-dot"/> Interactive whiteboard</span><button className="focus-button" onClick={() => setWorkflowFocus(value => !value)}>{workflowFocus ? <CornersIn size={15}/> : <CornersOut size={15}/>} {workflowFocus ? "Exit focus" : "Focus mode"}</button></div></div>
+            <div className="card-top"><div><span className="eyebrow">CLASSICAL WORKFLOW</span><h2>{active === "RSA" ? "RSA key playground" : `${active} whiteboard`}</h2></div><div className="workflow-head-actions"><button className="focus-button" onClick={() => setWorkflowFocus(value => !value)}>{workflowFocus ? <CornersIn size={15}/> : <CornersOut size={15}/>} {workflowFocus ? "Exit focus" : "Focus mode"}</button></div></div>
             {active === "RSA" ? <RSAPlayground p={rsaP} q={rsaQ} setP={setRsaP} setQ={setRsaQ} onBreak={openBreak}/> : <DiscreteLogPlayground algorithm={active}/>}
             {workflowFocus && <p className="focus-hint">Click any stage or press play · Esc closes focus mode</p>}
           </section>
@@ -438,7 +438,7 @@ export default function CryptoLab({ user, initialLearning, initialWorkspace, ini
         {tab === "attack" && <>
           {workflowFocus && <button className="focus-backdrop" onClick={() => setWorkflowFocus(false)} aria-label="Exit workflow focus mode"/>}
           <section className={`foundation-card workflow-whiteboard quantum-whiteboard ${workflowFocus ? "workflow-focus" : ""}`}>
-            <div className="card-top"><div><span className="eyebrow coral">QUANTUM WORKFLOW</span><h2>{active} attack whiteboard</h2><p className="rsa-break-subtitle">{active === "RSA" ? "From a public key to a recovered secret, one line at a time." : "Trace the hidden structure from public values to a recovered private exponent."}</p></div><div className="workflow-head-actions"><span className="manual-badge"><span className="pulse-dot"/> Interactive whiteboard</span><button className="focus-button" aria-label={workflowFocus ? "Exit focus" : "Focus mode"} onClick={() => setWorkflowFocus(value => !value)}>{workflowFocus ? <CornersIn size={15}/> : <CornersOut size={15}/>} {workflowFocus ? "Exit focus" : "Focus mode"}</button></div></div>
+            <div className="card-top"><div><span className="eyebrow coral">QUANTUM WORKFLOW</span><h2>{active} attack whiteboard</h2><p className="rsa-break-subtitle">{active === "RSA" ? "From a public key to a recovered secret, one line at a time." : "Trace the hidden structure from public values to a recovered private exponent."}</p></div><div className="workflow-head-actions"><button className="focus-button" aria-label={workflowFocus ? "Exit focus" : "Focus mode"} onClick={() => setWorkflowFocus(value => !value)}>{workflowFocus ? <CornersIn size={15}/> : <CornersOut size={15}/>} {workflowFocus ? "Exit focus" : "Focus mode"}</button></div></div>
             {active === "RSA" ? <RSABreakPlayground n={rsaKey.n} e={rsaKey.e} firstPrime={rsaKey.p} onEdit={() => setTab("foundation")}/> : <DiscreteLogAttackPlayground algorithm={active}/>}
             {workflowFocus && <p className="focus-hint">Step through each line or press play · Esc closes focus mode</p>}
           </section>
@@ -448,14 +448,13 @@ export default function CryptoLab({ user, initialLearning, initialWorkspace, ini
         {tab === "protect" && <>
           {workflowFocus && <button className="focus-backdrop" onClick={() => setWorkflowFocus(false)} aria-label="Exit workflow focus mode"/>}
           <section className={`foundation-card workflow-whiteboard postquantum-whiteboard ${workflowFocus ? "workflow-focus" : ""}`}>
-            <div className="card-top"><div><span className="eyebrow mint">POST-QUANTUM WORKFLOW</span><h2>{active} migration whiteboard</h2><p className="rsa-break-subtitle">Move to a quantum-resistant foundation, one decision at a time.</p></div><div className="workflow-head-actions"><span className="manual-badge"><span className="pulse-dot"/> Interactive whiteboard</span><button className="focus-button" aria-label={workflowFocus ? "Exit focus" : "Focus mode"} onClick={() => setWorkflowFocus(value => !value)}>{workflowFocus ? <CornersIn size={15}/> : <CornersOut size={15}/>} {workflowFocus ? "Exit focus" : "Focus mode"}</button></div></div>
+            <div className="card-top"><div><span className="eyebrow mint">POST-QUANTUM WORKFLOW</span><h2>{active} migration whiteboard</h2><p className="rsa-break-subtitle">Move to a quantum-resistant foundation, one decision at a time.</p></div><div className="workflow-head-actions"><button className="focus-button" aria-label={workflowFocus ? "Exit focus" : "Focus mode"} onClick={() => setWorkflowFocus(value => !value)}>{workflowFocus ? <CornersIn size={15}/> : <CornersOut size={15}/>} {workflowFocus ? "Exit focus" : "Focus mode"}</button></div></div>
             <PostQuantumPlayground algorithm={active}/>
             {workflowFocus && <p className="focus-hint">Step through each line or press play · Esc closes focus mode</p>}
           </section>
           <ThreatMap/>
         </>}
         </>}
-        <footer><Logo/><span>Conceptual learning environment · Examples use toy values</span><span>Built for curious minds</span></footer>
       </div>
     </main>
   </div>;
