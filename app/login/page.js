@@ -3,7 +3,13 @@ import AuthForm from "../components/AuthForm";
 import { getAccountState } from "../lib/account-state";
 import DatabaseUnavailable from "../components/DatabaseUnavailable";
 
-export const metadata = { title: "Log in — CyberQ Lab" };
+export const metadata = {
+  title: "Log in",
+  description: "Sign in to your CyberQ Lab account to access your quantum cryptography courses, interactive algorithm playgrounds, and progress.",
+  alternates: {
+    canonical: "/login",
+  },
+};
 const oauthMessages = {
   cancelled: "Google sign-in was cancelled.",
   invalid: "Google sign-in could not be verified. Please try again.",
