@@ -1,0 +1,151 @@
+# CyberQ Lab — Full Educational Curriculum & Technical Reference
+
+> URL: https://www.cyberqlab.courses  
+> Platform: CyberQ Lab  
+> Category: Quantum Computing, Cryptography & Cybersecurity Learning  
+
+## Overview
+CyberQ Lab is an interactive learning platform designed to teach quantum computing, quantum cryptography, and post-quantum cryptography (PQC) through interactive algorithm playgrounds, simulators, and structured coursework.
+
+---
+
+## 1. Number Theory for Cryptography
+- **Core Topics**: Modular arithmetic, congruence, greatest common divisor (GCD), Euclidean algorithm, modular inverses, repeated squaring.
+- **Key Idea**: Factoring decomposes a number into secret prime factors (RSA), while the discrete-log problem recovers an unknown exponent from modular exponentiation (Diffie–Hellman).
+- **Core Math**:
+  - Modular reduction: `a mod m = r` where `a = qm + r`, `0 <= r < m`.
+  - Congruence: `a ≡ b (mod m)` implies `m | (a - b)`.
+  - Modular inverse: `ax ≡ 1 (mod m)` exists if and only if `gcd(a, m) = 1`.
+  - Repeated squaring computes `g^k mod m` in `O(log k)` multiplications.
+- **Hands-on Verification (Python)**:
+  ```python
+  from math import gcd
+  assert 43 % 9 == 7
+  assert -8 % 7 == 6
+  assert gcd(84, 30) == 6
+  assert pow(5, -1, 17) == 7
+  assert pow(3, 7, 11) == 9
+  ```
+
+---
+
+## 2. Cryptography Fundamentals
+- **Core Topics**: Symmetric encryption (AES-GCM), cryptographic hashing (SHA-256), Hash-based Message Authentication Codes (HMAC), digital signatures (Ed25519, RSA-PSS), TLS 1.3 protocol architecture.
+- **Key Idea**: Symmetric encryption protects confidentiality, HMACs authenticate between parties with a shared key, and digital signatures allow universal verification with a public key.
+- **Core Principles**:
+  - AES-GCM requires a unique nonce per encryption with the same key; nonce reuse destroys security.
+  - Hashing produces a fixed-size digest without a key; verify file integrity only against trusted sources.
+  - Digital signatures provide public verifiability and non-repudiation using asymmetric keys.
+  - In TLS 1.3: Asymmetric key agreement establishes secrets, digital signatures authenticate certificates, and symmetric AES-GCM encrypts application traffic.
+
+---
+
+## 3. Factoring-Based Cryptography and RSA
+- **Core Topics**: Prime generation, Euler's totient `φ(n) = (p - 1)(q - 1)`, public key `(n, e)`, private exponent `d = e^(-1) mod φ(n)`, RSA-OAEP encryption, RSA-PSS signatures.
+- **Key Idea**: RSA's security relies on the hardness of factoring `n` into primes `p` and `q`; recovering those primes immediately reveals `φ(n)` and private exponent `d`.
+- **Toy Key Generation Example**:
+  - Choose primes `p = 11, q = 13`
+  - Compute modulus `n = p * q = 143`
+  - Compute totient `φ(n) = (p - 1)(q - 1) = 120`
+  - Choose `e = 7` (must satisfy `gcd(e, φ(n)) = 1`)
+  - Calculate `d = 7^(-1) mod 120 = 103` (since `7 * 103 = 721 = 6 * 120 + 1`)
+  - Encrypt message `m = 9`: `c = m^e mod n = 9^7 mod 143 = 48`
+  - Decrypt ciphertext `c = 48`: `m = c^d mod n = 48^103 mod 143 = 9`
+
+---
+
+## 4. Diffie–Hellman and DSA
+- **Core Topics**: Discrete logarithm problem `g^a ≡ A (mod p)`, Diffie–Hellman key exchange, Digital Signature Algorithm (DSA), per-message nonce vulnerability.
+- **Key Idea**: Diffie–Hellman allows two parties to agree on a shared secret over a public channel, while DSA applies discrete logarithms to produce verifiable digital signatures.
+- **Key Exchange Mechanics**:
+  - Public parameters: prime `p`, generator `g`.
+  - Alice picks private `a`, sends `A = g^a mod p`.
+  - Bob picks private `b`, sends `B = g^b mod p`.
+  - Alice computes `B^a mod p = (g^b)^a = g^(ab) mod p`.
+  - Bob computes `A^b mod p = (g^a)^b = g^(ab) mod p`.
+  - Shared secret is identical without ever transmitting `a` or `b`.
+- **Critical Vulnerability**: Reusing secret nonce `k` in DSA allows an attacker to solve algebraically for private signing key `x`. Modern implementations use deterministic nonce generation (RFC 6979) or Ed25519.
+
+---
+
+## 5. Elliptic-Curve Cryptography: ECDH, ECDSA, and EdDSA
+- **Core Topics**: Weierstrass curves `y^2 ≡ x^3 + ax + b (mod p)`, point addition and point doubling, scalar multiplication `Q = dG`, Elliptic Curve Discrete Logarithm Problem (ECDLP), X25519, Ed25519.
+- **Key Idea**: Elliptic-curve cryptography achieves equivalent security to RSA with substantially smaller keys (e.g., 256-bit ECC matches 3072-bit RSA security), using point scalar multiplication `Q = dG`.
+- **Modern Standards**:
+  - Key Agreement: X25519 (Curve25519), constant-time, immune to cache-timing attacks.
+  - Digital Signatures: Ed25519 (EdDSA), deterministic nonces derived from private key and message, preventing nonce-reuse failure.
+
+---
+
+## 6. Qubits, Gates, and Quantum Interference
+- **Core Topics**: Quantum state vectors `|ψ⟩ = α|0⟩ + β|1⟩`, normalization `|α|^2 + |β|^2 = 1`, Born's rule, Pauli gates (X, Z), Hadamard gate (H), CNOT entangling gate, Bell states `(|00⟩ + |11⟩)/√2`.
+- **Key Idea**: Quantum algorithms exploit destructive interference to cancel unwanted calculation paths while constructive interference amplifies the amplitude of the correct answer.
+- **Interference Example**:
+  - Applying Hadamard to `|0⟩` yields `(|0⟩ + |1⟩)/√2`.
+  - Applying a second Hadamard recombines paths:
+    `H((|0⟩ + |1⟩)/√2) = ((|0⟩ + |1⟩) + (|0⟩ − |1⟩)) / 2 = |0⟩`.
+  - The `|0⟩` components interfere constructively; the `|1⟩` components cancel by destructive interference.
+
+---
+
+## 7. Quantum Fourier Transform and Phase Estimation
+- **Core Topics**: Unitary operator `U|u⟩ = e^(2πiφ)|u⟩`, eigenphase `φ`, controlled unitary operations, Quantum Fourier Transform (QFT), inverse QFT, modular order finding `a^r ≡ 1 (mod N)`.
+- **Key Idea**: Phase estimation transforms an operator's eigenvalues into readable register phases via inverse QFT interference, providing the period-finding engine for Shor's algorithm.
+
+---
+
+## 8. Shor’s and Grover’s Algorithms
+- **Core Topics**: Quantum period finding, factoring integers `N = pq`, discrete log solving, amplitude amplification, Grover oracle and diffusion operators.
+- **Key Idea**: Shor's algorithm exponentially breaks public-key cryptography (RSA, DH, ECC) via period finding, whereas Grover's algorithm quadratically accelerates brute-force search against symmetric keys and hashes.
+- **Shor's Factoring**:
+  - Finds period `r` of `a mod N`.
+  - If `r` is even and `a^(r/2) ≢ -1 (mod N)`, nontrivial factors of `N` are `gcd(a^(r/2) - 1, N)` and `gcd(a^(r/2) + 1, N)`.
+  - Exponential speedup breaks RSA-2048, ECDSA-256, and Diffie-Hellman in polynomial time `O((log N)^3)`.
+- **Grover's Search**:
+  - Unstructured search in `O(√N)` oracle queries instead of classical `O(N)`.
+  - Countermeasure: Double symmetric key lengths (e.g., transition from AES-128 to AES-256 to maintain 128-bit quantum security margin).
+
+---
+
+## 9. Post-Quantum Key Establishment with ML-KEM
+- **Core Topics**: NIST FIPS 203 (CRYSTALS-Kyber), Module Learning With Errors (M-LWE), Key Encapsulation Mechanism (KEM), encapsulation key, decapsulation key, implicit rejection.
+- **Key Idea**: ML-KEM replaces vulnerable Diffie–Hellman key exchange with lattice-based encapsulation on classical computers, transmitting an encapsulation key and returning a KEM ciphertext.
+- **Parameters (ML-KEM-768 / NIST Level 3)**:
+  - Public Encapsulation Key: 1,184 bytes
+  - Ciphertext: 1,088 bytes
+  - Shared Secret: 32 bytes
+  - Total wire exchange: 2,272 bytes
+- **Implicit Rejection (IND-CCA2)**:
+  - If ciphertext is corrupted or manipulated, decapsulation does not return an error or leak oracle timing; it outputs a pseudorandom mismatched shared secret so decryption of subsequent messages fails silently.
+
+---
+
+## 10. Post-Quantum Signatures and BB84 QKD
+- **Core Topics**: NIST FIPS 204 ML-DSA (CRYSTALS-Dilithium), NIST FIPS 205 SLH-DSA (SPHINCS+), BB84 Quantum Key Distribution protocol, no-cloning theorem, Quantum Bit Error Rate (QBER).
+- **Key Idea**: ML-DSA and SLH-DSA provide quantum-resistant classical digital signatures, while BB84 leverages quantum measurement disturbance and sifting to detect eavesdropping and establish shared key material.
+- **BB84 Mechanics**:
+  - Alice sends photons polarized in random bases: Computational Z (`{|0⟩, |1⟩}`) and Diagonal X (`{|+⟩, |−⟩}`).
+  - Bob measures in random bases.
+  - Sifting: Alice and Bob publicly announce bases (not bit values) and keep matching bases.
+  - Intercept-Resend Attack Detection: An eavesdropper (Eve) choosing bases at random guesses wrong 50% of the time, causing Bob to get the wrong bit 50% of those times. Total expected error is `0.5 * 0.5 = 25%` QBER.
+  - If QBER exceeds threshold (typically ~11%), communication is aborted.
+
+---
+
+## 11. TLS, Cryptographic Inventory, and PQC Migration
+- **Core Topics**: TLS 1.3 architecture, crypto-agility, cryptographic inventories, Harvest-Now-Decrypt-Later (HNDL) attacks, hybrid key exchange (`X25519 + ML-KEM-768`).
+- **Key Idea**: In TLS 1.3, key establishment, authentication, and traffic ciphers are independent jobs; mitigating harvest-now-decrypt-later requires prioritizing post-quantum key exchange (ML-KEM) for long-lived secrets.
+- **Migration Strategy**:
+  1. Identify assets and build cryptographic inventory.
+  2. Implement hybrid key exchange in HTTPS endpoints to neutralize HNDL without waiting for PKI certificate upgrades.
+  3. Transition PKI and software signing to ML-DSA / SLH-DSA.
+
+---
+
+## 12. Quantum Studio Capstone: PQC Benchmarking
+- **Core Topics**: Benchmark latency (median vs p95 tail latency), network payload size, MTU fragmentation, operational rollback criteria.
+- **Key Comparison**:
+  - Classical Key Agreement: X25519 (64 bytes total wire payload).
+  - Post-Quantum Key Agreement: ML-KEM-768 (2,272 bytes wire payload).
+  - Classical Signatures: Ed25519 (32-byte public key, 64-byte signature).
+  - Post-Quantum Signatures: ML-DSA-65 (1,952-byte public key, 3,309-byte signature).

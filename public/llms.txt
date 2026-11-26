@@ -1,0 +1,40 @@
+# CyberQ Lab
+
+> Interactive learning platform for quantum computing, quantum cryptography, and post-quantum cybersecurity.
+
+CyberQ Lab offers interactive courses, hands-on algorithm playgrounds, and simulators for modern and post-quantum cryptography. It covers classical foundations (RSA, Diffie–Hellman, ECC), quantum threats (Shor's and Grover's algorithms), post-quantum cryptography (NIST FIPS 203 ML-KEM, FIPS 204 ML-DSA, SLH-DSA), and quantum key distribution (BB84 protocol).
+
+Website: https://www.cyberqlab.courses
+
+## Courses & Curriculum
+
+- [Quantum Cryptography Course](https://www.cyberqlab.courses/?workspace=course): Complete 12-section interactive course covering number theory to PQC migration.
+- [Algorithm Playgrounds](https://www.cyberqlab.courses/): Interactive playgrounds for RSA keygen/breaking, Discrete Log, and Post-Quantum cryptography.
+
+## Sections & Modules
+
+- [Number Theory for Cryptography](https://www.cyberqlab.courses/?workspace=course): Modular arithmetic, remainders, Euclidean algorithm, modular inverses, and repeated squaring.
+- [Cryptography Fundamentals](https://www.cyberqlab.courses/?workspace=course): Symmetric encryption (AES-GCM), hashing (SHA-256), HMAC, and digital signatures.
+- [Factoring-Based Cryptography and RSA](https://www.cyberqlab.courses/?workspace=course): Key generation with primes (p, q), Euler's totient φ(n), encryption/decryption, and why factoring breaks RSA.
+- [Diffie–Hellman and DSA](https://www.cyberqlab.courses/?workspace=course): Discrete logarithm problem, key exchange mechanics, and digital signature algorithm.
+- [ECDH, ECDSA, and EdDSA](https://www.cyberqlab.courses/?workspace=course): Elliptic curve point addition/doubling, scalar multiplication Q = dG, X25519, and Ed25519.
+- [Qubits, Gates, and Interference](https://www.cyberqlab.courses/?workspace=course): State amplitudes, Born's rule, Hadamard gates, destructive/constructive interference, and Bell states.
+- [Quantum Fourier Transform and Phase Estimation](https://www.cyberqlab.courses/?workspace=course): Unitary operator eigenphases, inverse QFT, and finding modular order r.
+- [Shor’s and Grover’s Algorithms](https://www.cyberqlab.courses/?workspace=course): Period finding to extract prime factors (breaks RSA, DH, ECC) and O(√N) amplitude amplification.
+- [Post-Quantum Key Establishment with ML-KEM](https://www.cyberqlab.courses/?workspace=course): NIST FIPS 203 lattice-based key encapsulation mechanism (CRYSTALS-Kyber) and implicit rejection.
+- [Post-Quantum Signatures and BB84](https://www.cyberqlab.courses/?workspace=course): NIST FIPS 204 ML-DSA (Dilithium), SLH-DSA (SPHINCS+), and BB84 QKD with 25% intercept-resend error detection.
+- [TLS, Cryptographic Inventory, and PQC Migration](https://www.cyberqlab.courses/?workspace=course): TLS 1.3 architecture, crypto-agility, and mitigating Harvest-Now-Decrypt-Later (HNDL).
+- [Quantum Studio Capstone: PQC Benchmarking](https://www.cyberqlab.courses/?workspace=course): Performance profiling (median vs p95 latency) and network wire-byte overhead analysis.
+
+## Key Concepts & FAQ
+
+- **Shor's Algorithm Impact**: Breaks RSA, Diffie–Hellman, and Elliptic Curve Cryptography in polynomial time by solving period finding / discrete logarithms on quantum hardware.
+- **Grover's Algorithm Impact**: Provides quadratic speedup against symmetric ciphers and hashes (O(√N)), mitigated simply by doubling key lengths (e.g. AES-256).
+- **ML-KEM (Module-Lattice-Based Key-Encapsulation Mechanism)**: Standardized in NIST FIPS 203 (Kyber), secures key exchange on classical computers using Module Learning With Errors (M-LWE).
+- **ML-DSA (Module-Lattice-Based Digital Signature Algorithm)**: Standardized in NIST FIPS 204 (Dilithium), provides quantum-resistant digital signatures.
+- **BB84 QKD**: Uses single photons in non-orthogonal bases. Eavesdropping introduces ~25% Quantum Bit Error Rate (QBER) in sifted bits, alerting communicating parties.
+- **Harvest-Now-Decrypt-Later (HNDL)**: Adversaries intercept and store encrypted data today to decrypt later with quantum computers; requires upgrading to hybrid/PQC key exchange immediately.
+
+## Full Documentation
+
+- [Full Course Content & Specifications](https://www.cyberqlab.courses/llms-full.txt): Comprehensive text, labs, and quiz materials for AI models and search engines.

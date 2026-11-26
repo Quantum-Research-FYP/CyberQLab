@@ -8,12 +8,31 @@ export default function robots() {
       : "https://www.cyberqlab.courses")
   ).replace(/\/+$/, "");
 
+  const aiBots = [
+    "GPTBot",
+    "OAI-SearchBot",
+    "ChatGPT-User",
+    "ClaudeBot",
+    "anthropic-ai",
+    "PerplexityBot",
+    "Google-Extended",
+    "Applebot-Extended",
+    "cohere-ai",
+  ];
+
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-      disallow: ["/api/", "/profile"],
-    },
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/api/", "/profile"],
+      },
+      {
+        userAgent: aiBots,
+        allow: ["/", "/llms.txt", "/llms-full.txt"],
+        disallow: ["/api/", "/profile"],
+      },
+    ],
     sitemap: `${baseUrl}/sitemap.xml`,
   };
 }
